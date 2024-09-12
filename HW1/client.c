@@ -37,7 +37,7 @@ int main() {
     send(sock, client_message, strlen(client_message), 0);
 
     // Receive the server's response:
-    varread = recv(sock, server_message, 1024, 0);
+    varread = read(sock, server_message, 1024);
 
     printf("Server's response: %s\n",server_message);
 
