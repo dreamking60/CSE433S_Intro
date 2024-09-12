@@ -3,3 +3,8 @@ server: server.c
 
 client: client.c
 	gcc -o client client.c
+
+all: server client
+
+clean:
+	rm -f server client

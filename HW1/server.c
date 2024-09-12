@@ -4,6 +4,7 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <netinet/in.h>
+#include <unistd.h>
 
 int main() {
     // Declare variables
@@ -67,8 +68,7 @@ int main() {
     send(client_sock, server_message, strlen(server_message), 0);
 
     // Close the socket
-    //close(client_sock);
-    //close(sever_sock);
+
     
 
     return 0;

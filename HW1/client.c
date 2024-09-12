@@ -3,6 +3,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <errno.h>
+#include <unistd.h>
 
 int main() {
     // Declare Variables
@@ -41,7 +42,7 @@ int main() {
     printf("Server's response: %s\n",server_message);
 
     // Close the socket:
-    //close(sock);
+    close(sock);
 
     return 0;
 
