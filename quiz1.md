@@ -18,7 +18,7 @@ No. Security is changing. Every day there is a new CVE. And what's more human is
 
 ## C.I.A stand for?
 
-# Week1 class2 & Week3 class3
+# Week1 class2 & Week3 class3&4
 
 ## ARP 
 ARP Request
@@ -67,3 +67,10 @@ Protect in Application Level
 Verus (no now)
 
 Reflection on trusted trucks
+
+## review
+sniffing
+spoofing
+
+Is increasing the buffer the right approach to defend against TCP sync flood?
+
