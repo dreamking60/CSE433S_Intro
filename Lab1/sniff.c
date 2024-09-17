@@ -24,7 +24,7 @@ int main()
     // Step 1: Open live pcap session on NIC with name eth3
     // Students needs to change "eth3" to the name
     // found on their own machines (using ifconfig).
-    handle = pcap_open_live("eth160", BUFSIZ, 1, 1000, errbuf);
+    handle = pcap_open_live("ens160", BUFSIZ, 1, 1000, errbuf);
 
     // Step 2: Compile filter_exp into BPF psuedo-code
     pcap_compile(handle, &fp, filter_exp, 0, net);
