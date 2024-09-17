@@ -2,6 +2,7 @@
 
 from scapy.all import *
 
+# Sample Code 1
 a = IP()
 a.show()
 
