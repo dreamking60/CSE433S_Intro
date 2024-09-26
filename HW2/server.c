@@ -188,7 +188,7 @@ int main() {
 
     // Receive OTP key
     unsigned char otp_key[strlen(client_message)];
-    varread = recv(client_sock, otp_key, strlen(client_message), 0);
+    varread = recv(client_sock, otp_key, 1024, 0);
 
     // Decrypt the OTP message
     unsigned char otp_decrypted_message[strlen(client_message)];
