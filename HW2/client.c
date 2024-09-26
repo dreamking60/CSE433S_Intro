@@ -188,7 +188,7 @@ int main() {
 
     // Receive the server's response:
     varread = read(sock, server_message, 1024);    
-    printf("End: %s\n",plaint_text);
+    printf("End: %s\n", server_message);
 
     // Close the socket:
     close(sock);
