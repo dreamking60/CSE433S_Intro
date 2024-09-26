@@ -74,3 +74,29 @@ spoofing
 
 Is increasing the buffer the right approach to defend against TCP sync flood?
 
+## Cipher
+
+Both Protect confidentiality
+
+PRP and PRF
+
+4 Principle:
+- Confusion
+- Diffusion
+- Non-Linear
+
+ECB mode of AES vuln: same key
+
+
+stream cipher -> OTP
+block cipher -> AES, mode of opeartion
+S
+
+Security Property does not all compose.
+
+## Atttack
+Integrity 
+- Message Authentication code[MAC] -> K
+    CRC
+- Hash Function -> K
+
