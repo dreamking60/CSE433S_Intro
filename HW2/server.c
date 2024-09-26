@@ -101,61 +101,6 @@ int stream_encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *k
    return ciphertext_len;
 }
 
-// Function to send AES key and IV to client using Diffie-Hellman
-void sendAESKeyAndIV(int client_socket, unsigned char *key, unsigned char *iv) {
-
-    // Initialize Diffie-Hellman
-    DH *dh = DH_new();
-    if(dh == NULL) {
-        handleErrors();
-    }
-    
-    if(DH_generate_parameters_ex(dh, 2048, DH_GENERATOR_2, NULL) != 1) {
-        handleErrors();
-    }
-
-    if(DH_generate_key(dh) != 1) {
-        handleErrors();
-    }
-
-    const BIGNUM *pub_key = DH_get0_pub_key(dh);
-    const BIGNUM *priv_key = DH_get0_priv_key(dh);
-
-    // Send the public key to the client
-    int pub_key_len = BN_num_bytes(pub_key);
-    unsigned char *pub_key_bytes = (unsigned char *)malloc(pub_key_len);
-    BN_bn2bin(pub_key, pub_key_bytes);
-    send(client_socket, pub_key_bytes, pub_key_len, 0);
-    free(pub_key_bytes);
-
-    // Receive the public key from the client
-    unsigned char client_pub_key_bytes[256];
-    int client_pub_key_len = recv(client_socket, client_pub_key_bytes, 256, 0);
-    BIGNUM *client_pub_key = BN_bin2bn(client_pub_key_bytes, client_pub_key_len, NULL);
-
-    // Compute the shared secret
-    unsigned char *shared_key[256];
-    int shared_key_len = DH_compute_key(shared_key, client_pub_key, dh);
-    if(shared_key_len < 0) {
-        handleErrors();
-    }
-
-    // Encrypt the key and iv using the shared key
-    unsigned char *encrypted_key[256];
-    int encrypted_key_len = stream_encrypt(key, AES_KEY_LENGTH, shared_key, iv, encrypted_key);
-    if(encrypted_key_len < 0) {
-        handleErrors();
-    }
-
-    // Send the encrypted key to the client
-    send(client_socket, encrypted_key, encrypted_key_len, 0);
-
-    DH_free(dh);   
-    BN_free(client_pub_key);
-}
-
-
-
 int main() {
     // Declare variables
 	ssize_t varread;
@@ -223,7 +168,8 @@ int main() {
     }
 
     // Send AES key and IV to client
-    sendAESKeyAndIV(client_sock, key, iv);    
+    send(client_sock, key, AES_KEY_LENGTH, 0);
+    send(client_sock, iv, AES_BLOCK_SIZE, 0);
 
     // Receive client's message
     varread = recv(client_sock, client_message, 1024, 0);

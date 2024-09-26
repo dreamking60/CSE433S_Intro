@@ -112,63 +112,6 @@ void computeSharedSecret(DH *dh, BIGNUM *peer_pub_key, unsigned char *shared_sec
     if (*shared_secret_len == -1) handleErrors();
 }
 
-void performDHKeyExchangeAndDecryptAESKey(int sock, unsigned char *aes_key, unsigned char *aes_iv) {
-    // Diffie-Hellman key exchange
-    DH *dh;
-    BIGNUM *pub_key, *priv_key;
-    generateDHKeys(&dh, &pub_key, &priv_key);
-
-    // Send public key to server
-    int pub_key_len = BN_num_bytes(pub_key);
-    unsigned char *pub_key_buf = malloc(pub_key_len);
-    BN_bn2bin(pub_key, pub_key_buf);
-    if (send(sock, pub_key_buf, pub_key_len, 0) < 0) {
-        perror("Error sending public key to server");
-        free(pub_key_buf);
-        DH_free(dh);
-        return;
-    }
-    free(pub_key_buf);
-
-    // Receive server's public key
-    unsigned char server_pub_key_buf[256];
-    int server_pub_key_len = recv(sock, server_pub_key_buf, sizeof(server_pub_key_buf), 0);
-    if (server_pub_key_len < 0) {
-        perror("Error receiving server's public key");
-        DH_free(dh);
-        return;
-    }
-    BIGNUM *server_pub_key = BN_bin2bn(server_pub_key_buf, server_pub_key_len, NULL);
-
-    // Compute shared secret
-    unsigned char shared_secret[256];
-    int shared_secret_len;
-    computeSharedSecret(dh, server_pub_key, shared_secret, &shared_secret_len);
-
-    // Receive encrypted AES key and IV
-    unsigned char encrypted_key_iv[256];
-    int encrypted_key_iv_len = recv(sock, encrypted_key_iv, sizeof(encrypted_key_iv), 0);
-    if (encrypted_key_iv_len < 0) {
-        perror("Error receiving encrypted AES key and IV");
-        DH_free(dh);
-        BN_free(server_pub_key);
-        return;
-    }
-
-    // Decrypt AES key and IV
-    unsigned char decrypted_key_iv[256];
-    int decrypted_key_iv_len = stream_decrypt(encrypted_key_iv, encrypted_key_iv_len, shared_secret, NULL, decrypted_key_iv);
-
-    memcpy(aes_key, decrypted_key_iv, AES_KEY_LENGTH);
-    memcpy(aes_iv, decrypted_key_iv + AES_KEY_LENGTH, AES_BLOCK_SIZE);
-
-    // Clean up
-    DH_free(dh);
-    BN_free(server_pub_key);
-}
-
-
-
 int main() {
     // Declare Variables
     struct sockaddr_in server_addr;
@@ -197,7 +140,11 @@ int main() {
     }    
 
     // Perform Diffie-Hellman key exchange and decrypt AES key and IV
-    performDHKeyExchangeAndDecryptAESKey(sock, aes_key, aes_iv);
+    //performDHKeyExchangeAndDecryptAESKey(sock, aes_key, aes_iv);
+
+    // recv key and iv
+    varread = recv(sock, aes_key, AES_KEY_LENGTH, 0);
+    varread = recv(sock, aes_iv, AES_BLOCK_SIZE, 0);
 
     // Get input from the user:
     printf("Enter message sent to the server: ");
