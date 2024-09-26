@@ -154,7 +154,7 @@ int main() {
     int ciphertext_len = stream_encrypt(client_message, strlen(client_message), aes_key, aes_iv, ciphertext);
 
     // print the encrypted message
-    printf("Encrypted message: ");
+    printf("Encrypted message: %s\n",ciphertext);
 
     // Send the message to server:
     send(sock, ciphertext, ciphertext_len, 0);

@@ -188,6 +188,7 @@ int main() {
     // Encrypt the message
     unsigned char encrypted_message[1024];
     int encrypted_message_len = stream_encrypt(server_message, strlen(server_message), key, iv, encrypted_message);
+    printf("Encrypted message: %s\n", encrypted_message);
 
     // Send the message to the client
     send(client_sock, encrypted_message, encrypted_message_len, 0);
