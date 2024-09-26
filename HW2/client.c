@@ -172,7 +172,7 @@ int main() {
     }
 
     // print
-    printf("OTP Plain: %x\n", client_message);
+    printf("OTP Plain: %s\n", client_message);
 
     // Encrypt the message with OTP
     char otp_ciphertext[strlen(client_message)];
