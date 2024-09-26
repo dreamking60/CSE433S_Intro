@@ -187,7 +187,7 @@ int main() {
     char otp_encrypted_message[1024];
     char otp_key[varread];
     varread = recv(client_sock, otp_encrypted_message, 1024, 0);
-    varread = recv(client_sock, otp_key, varread, 0);
+    varread = recv(client_sock, otp_key, 1024, 0);
     printf("OTP Encrypt: %x\n", otp_encrypted_message);
     printf("OTP Key: %x\n", otp_key);
 

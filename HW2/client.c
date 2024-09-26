@@ -185,6 +185,9 @@ int main() {
     // send the OTP ciphertext to server
     send(sock, otp_ciphertext, strlen(otp_ciphertext), 0);
 
+    // wait
+    sleep(1);
+
     // send the OTP key to server
     send(sock, otp_key, strlen(otp_key), 0);
     
