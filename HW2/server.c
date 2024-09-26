@@ -18,6 +18,7 @@
 #define AES_KEY_LENGTH 32
 #define AES_BLOCK_SIZE 16
 
+
 // Handle errors
 void handleErrors(void)
 {
@@ -102,20 +103,6 @@ int stream_encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *k
 
 // Function to send AES key and IV to client using Diffie-Hellman
 void sendAESKeyAndIV(int client_socket) {
-    // Declare key and iv
-    unsigned char key[AES_KEY_LENGTH];‘
-    unsigned char iv[AES_BLOCK_SIZE];
-
-    // Initialize key and iv
-    if(RAND_bytes(key, AES_KEY_LENGTH) != 1) {
-        printf("Error in generating key\n");
-        return;
-    }
-
-    if(RAND_bytes(iv, AES_BLOCK_SIZE) != 1) {
-        printf("Error in generating iv\n");
-        return;
-    }
 
     // Initialize Diffie-Hellman
     DH *dh = DH_new();
@@ -220,6 +207,21 @@ int main() {
     int client_port = ntohs(client_addr.sin_port);
     printf("Client connected at IP: %s and port: %i\n", client_ip, client_port);
 
+    // Declare key and iv
+    unsigned char key[AES_KEY_LENGTH];
+    unsigned char iv[AES_BLOCK_SIZE];
+
+    // Initialize key and iv
+    if(RAND_bytes(key, AES_KEY_LENGTH) != 1) {
+        printf("Error in generating key\n");
+        return;
+    }
+
+    if(RAND_bytes(iv, AES_BLOCK_SIZE) != 1) {
+        printf("Error in generating iv\n");
+        return;
+    }
+
     // Send AES key and IV to client
     sendAESKeyAndIV(client_sock);    
 
@@ -233,7 +235,6 @@ int main() {
 
     // Print the decrypted message
     printf("Decrypted message: %s\n", decrypted_message);
-
 
     // Respond to client
     strcpy(server_message, "##Hello, Bob! This is Alice.##");
