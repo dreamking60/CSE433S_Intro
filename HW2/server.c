@@ -182,12 +182,11 @@ int main() {
     // Print the decrypted message
     printf("AES Decrypted message: %s\n", decrypted_message);
 
-    memset(client_message, 0, sizeof(client_message));
 
     // Receive OTP encrypted message
-    varread = recv(client_sock, client_message, 1024, 0);
-    varread = recv(client_sock, client_message, 1024, 0);
-    printf("OTP Encrypt: %x\n", client_message);
+    char otp_encrypted_message[1024];
+    varread = recv(client_sock, otp_encrypted_message, 1024, 0);
+    printf("OTP Encrypt: %x\n", otp_encrypted_message);
 
     // Receive OTP key
     unsigned char otp_key[varread];
@@ -196,7 +195,7 @@ int main() {
     // Decrypt the OTP message
     char otp_decrypted_message[varread];
     for (int i = 0; i < varread; i++) {
-        otp_decrypted_message[i] = client_message[i] ^ otp_key[i];
+        otp_decrypted_message[i] = otp_encrypted_message[i] ^ otp_key[i];
     }
 
     // Print the OTP decrypted message
