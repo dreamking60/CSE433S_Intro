@@ -102,7 +102,7 @@ int stream_encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *k
 }
 
 // Function to send AES key and IV to client using Diffie-Hellman
-void sendAESKeyAndIV(int client_socket) {
+void sendAESKeyAndIV(int client_socket, unsigned char *key, unsigned char *iv) {
 
     // Initialize Diffie-Hellman
     DH *dh = DH_new();
@@ -223,7 +223,7 @@ int main() {
     }
 
     // Send AES key and IV to client
-    sendAESKeyAndIV(client_sock);    
+    sendAESKeyAndIV(client_sock, key, iv);    
 
     // Receive client's message
     varread = recv(client_sock, client_message, 1024, 0);
