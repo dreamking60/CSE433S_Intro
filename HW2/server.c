@@ -189,11 +189,11 @@ int main() {
     printf("OTP Encrypt: %s\n", client_message);
 
     // Receive OTP key
-    unsigned char otp_key[strlen(client_message)];
-    varread = recv(client_sock, otp_key, sizeof(otp_key), 0);
+    unsigned char otp_key[varread];
+    varread = recv(client_sock, otp_key, varread, 0);
 
     // Decrypt the OTP message
-    char otp_decrypted_message[1024];
+    char otp_decrypted_message[varread];
     for (int i = 0; i < varread; i++) {
         otp_decrypted_message[i] = client_message[i] ^ otp_key[i];
     }
