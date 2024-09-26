@@ -171,6 +171,9 @@ int main() {
         otp_key[i] = rand() % 256;
     }
 
+    // print
+    printf("OTP Plain: %x\n", client_message);
+
     // Encrypt the message with OTP
     char otp_ciphertext[strlen(client_message)];
     otp_encrypt(client_message, otp_key, otp_ciphertext);
