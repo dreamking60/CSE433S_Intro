@@ -173,7 +173,7 @@ int main() {
 
     // Receive client's message
     varread = recv(client_sock, client_message, 1024, 0);
-    printf("AES Encrypt: %s\n", client_message);
+    printf("AES Encrypt: %x\n", client_message);
 
     // Decrypt the message
     unsigned char decrypted_message[1024];
@@ -186,7 +186,7 @@ int main() {
 
     // Receive OTP encrypted message
     varread = recv(client_sock, client_message, 1024, 0);
-    printf("OTP Encrypt: %s\n", client_message);
+    printf("OTP Encrypt: %x\n", client_message);
 
     // Receive OTP key
     unsigned char otp_key[varread];

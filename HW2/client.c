@@ -160,7 +160,7 @@ int main() {
     int ciphertext_len = stream_encrypt(client_message, strlen(client_message), aes_key, aes_iv, ciphertext);
 
     // print the encrypted message
-    printf("AES Encrypt: %s\n",ciphertext);
+    printf("AES Encrypt: %x\n",ciphertext);
 
     // Send the message to server:
     send(sock, ciphertext, ciphertext_len, 0);
@@ -176,7 +176,7 @@ int main() {
     otp_encrypt(client_message, otp_key, otp_ciphertext);
     
     // print the OTP encrypted message
-    printf("OTP Encrypt: %s\n",otp_ciphertext);
+    printf("OTP Encrypt: %x\n",otp_ciphertext);
 
     // send the OTP ciphertext to server
     send(sock, otp_ciphertext, strlen(otp_ciphertext), 0);
