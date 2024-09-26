@@ -112,6 +112,13 @@ void computeSharedSecret(DH *dh, BIGNUM *peer_pub_key, unsigned char *shared_sec
     if (*shared_secret_len == -1) handleErrors();
 }
 
+// One Time Pad encryption
+void otp_encrypt(char *plaintext, char *key, char *ciphertext) {
+    for (int i = 0; i < strlen(plaintext); i++) {
+        ciphertext[i] = plaintext[i] ^ key[i];
+    }
+}
+
 int main() {
     // Declare Variables
     struct sockaddr_in server_addr;
@@ -140,7 +147,6 @@ int main() {
     }    
 
     // Perform Diffie-Hellman key exchange and decrypt AES key and IV
-    //performDHKeyExchangeAndDecryptAESKey(sock, aes_key, aes_iv);
 
     // recv key and iv
     varread = recv(sock, aes_key, AES_KEY_LENGTH, 0);
@@ -154,22 +160,35 @@ int main() {
     int ciphertext_len = stream_encrypt(client_message, strlen(client_message), aes_key, aes_iv, ciphertext);
 
     // print the encrypted message
-    printf("Encrypted message: %s\n",ciphertext);
+    printf("AES Encrypt: %s\n",ciphertext);
 
     // Send the message to server:
     send(sock, ciphertext, ciphertext_len, 0);
 
-    // Receive the server's response:
-    varread = read(sock, server_message, 1024);
+    // Init OTP as length of the client_message
+    char otp_key[strlen(client_message)];
+    for (int i = 0; i < strlen(client_message); i++) {
+        otp_key[i] = rand() % 256;
+    }
 
-    // print the server message
-    printf("Server's message: %s\n",server_message);
-
-    // Decrypt the server's response:
-    unsigned char plaint_text[1024];
-    int plaint_text_len = stream_decrypt(server_message, varread, aes_key, aes_iv, plaint_text);
+    // Encrypt the message with OTP
+    char otp_ciphertext[strlen(client_message)];
+    otp_encrypt(client_message, otp_key, otp_ciphertext);
     
-    printf("Server's response: %s\n",plaint_text);
+    // print the OTP encrypted message
+    printf("OTP Encrypt: %s\n",otp_ciphertext);
+
+    // send the OTP ciphertext to server
+    send(sock, otp_ciphertext, strlen(otp_ciphertext), 0);
+
+    // send the OTP key to server
+    send(sock, otp_key, strlen(otp_key), 0);
+    
+
+
+    // Receive the server's response:
+    varread = read(sock, server_message, 1024);    
+    printf("End: %s\n",plaint_text);
 
     // Close the socket:
     close(sock);

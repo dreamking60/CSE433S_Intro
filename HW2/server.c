@@ -173,26 +173,37 @@ int main() {
 
     // Receive client's message
     varread = recv(client_sock, client_message, 1024, 0);
-    printf("Msg from client: %s\n", client_message);
+    printf("AES Encrypt: %s\n", client_message);
 
     // Decrypt the message
     unsigned char decrypted_message[1024];
     int decrypted_message_len = stream_decrypt(client_message, varread, key, iv, decrypted_message);
 
     // Print the decrypted message
-    printf("Decrypted message: %s\n", decrypted_message);
+    printf("AES Decrypted message: %s\n", decrypted_message);
+
+    // Receive OTP encrypted message
+    varread = recv(client_sock, client_message, 1024, 0);
+    printf("OTP Encrypt: %s\n", client_message);
+
+    // Receive OTP key
+    unsigned char otp_key[strlen(client_message)];
+    varread = recv(client_sock, otp_key, strlen(client_message), 0);
+
+    // Decrypt the OTP message
+    unsigned char otp_decrypted_message[strlen(client_message)];
+    for (int i = 0; i < strlen(client_message); i++) {
+        otp_decrypted_message[i] = client_message[i] ^ otp_key[i];
+    }
+
+    // Print the OTP decrypted message
+    printf("OTP Decrypted message: %s\n", otp_decrypted_message);
 
     // Respond to client
-    strcpy(server_message, "##Hello, Bob! This is Alice.##");
-    printf("Server's message: %s\n", server_message);
-
-    // Encrypt the message
-    unsigned char encrypted_message[1024];
-    int encrypted_message_len = stream_encrypt(server_message, strlen(server_message), key, iv, encrypted_message);
-    printf("Encrypted message: %s\n", encrypted_message);
+    strcpy(server_message, "Test Over!");
 
     // Send the message to the client
-    send(client_sock, encrypted_message, encrypted_message_len, 0);
+    send(client_sock, server_message, strlen(server_message), 0);
 
     // Close the socket
     close(client_sock);
