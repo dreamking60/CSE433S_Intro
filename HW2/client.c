@@ -180,6 +180,7 @@ int main() {
     
     // print the OTP encrypted message
     printf("OTP Encrypt: %x\n",otp_ciphertext);
+    printf("OTP Key: %x\n",otp_key);
 
     // send the OTP ciphertext to server
     send(sock, otp_ciphertext, strlen(otp_ciphertext), 0);
