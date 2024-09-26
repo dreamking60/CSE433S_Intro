@@ -183,7 +183,7 @@ int main() {
     printf("Decrypted message: %s\n", decrypted_message);
 
     // Respond to client
-    strncpy(server_message, "##Hello, Bob! This is Alice.##");
+    strcpy(server_message, "##Hello, Bob! This is Alice.##");
     printf("Server's message: %s\n", server_message);
 
     // Encrypt the message
