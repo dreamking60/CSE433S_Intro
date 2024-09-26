@@ -184,6 +184,7 @@ int main() {
 
     // Respond to client
     strcpy(server_message, "##Hello, Bob! This is Alice.##");
+    printf("Server's message: %s\n", server_message);
 
     // Encrypt the message
     unsigned char encrypted_message[1024];
