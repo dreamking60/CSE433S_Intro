@@ -110,7 +110,7 @@ void sendAESKeyAndIV(int client_socket, unsigned char *key, unsigned char *iv) {
         handleErrors();
     }
     
-    if(DH_generate_parameters_ex(dh, 256, DH_GENERATOR_2, NULL) != 1) {
+    if(DH_generate_parameters_ex(dh, 2048, DH_GENERATOR_2, NULL) != 1) {
         handleErrors();
     }
 
