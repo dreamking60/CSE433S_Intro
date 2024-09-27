@@ -15,6 +15,9 @@
 #define AES_BLOCK_SIZE 16
 #define RC4_KEY_LENGTH 16
 
+#define CHACHA_KEY_LENGTH 32
+#define CHACHA_IV_LENGTH 12
+
 
 void handleErrors(void)
 {
@@ -36,7 +39,7 @@ int stream_decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char 
     }
 
    /* Initialize the decryption operation. */
-   if(EVP_DecryptInit_ex(ctx, EVP_rc4(), NULL, key, NULL) != 1) {
+   if(EVP_DecryptInit_ex(ctx, EVP_chacha20(), NULL, key, iv) != 1) {
         handleErrors();
    }
 
@@ -72,7 +75,7 @@ int stream_encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *k
     }
 
    /* Initialize the encryption operation. */ 
-   if(EVP_EncryptInit_ex(ctx, EVP_rc4(), NULL, key, NULL) != 1) {
+   if(EVP_EncryptInit_ex(ctx, EVP_chacha20(), NULL, key, iv) != 1) {
         handleErrors();
      }
 
@@ -131,18 +134,32 @@ int main() {
 
     // Perform Diffie-Hellman key exchange and decrypt AES key and IV
 
+    // Define the chacha20 key and iv
+    unsigned char chacha_key[CHACHA_KEY_LENGTH];
+    unsigned char chacha_iv[CHACHA_IV_LENGTH];
+
+    // Generate key and iv
+    if (!RAND_bytes(chacha_key, CHACHA_KEY_LENGTH)) {
+        handleErrors();
+    }
+    if (!RAND_bytes(chacha_iv, CHACHA_IV_LENGTH)) {
+        handleErrors();
+    }
+
     // recv key
-    varread = recv(sock, rc4_key, RC4_KEY_LENGTH, 0);
+    //varread = recv(sock, rc4_key, RC4_KEY_LENGTH, 0);
+    varread = recv(sock, chacha_key, CHACHA_KEY_LENGTH, 0);
+    varread = recv(sock, chacha_iv, CHACHA_IV_LENGTH, 0);
 
     // Get input from the user:
     printf("Enter message sent to the server: ");
     fgets(client_message, sizeof(client_message), stdin);
 
     // Encrypt the message
-    int ciphertext_len = stream_encrypt(client_message, strlen(client_message), rc4_key, NULL, ciphertext);
+    int ciphertext_len = stream_encrypt(client_message, strlen(client_message), chacha_key, chacha_iv, ciphertext);
 
     // print the encrypted message
-    printf("RC4 Encrypt: %x\n",ciphertext);
+    printf("CHACHA20 Encrypt: %x\n",ciphertext);
 
     // Send the message to server:
     send(sock, ciphertext, ciphertext_len, 0);

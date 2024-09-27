@@ -19,6 +19,8 @@
 #define AES_BLOCK_SIZE 16
 
 #define RC4_KEY_LENGTH 16
+#define CHACHA_KEY_LENGTH 32
+#define CHACHA_IV_LENGTH 12
 
 // Handle errors
 void handleErrors(void)
@@ -41,7 +43,7 @@ int stream_decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char 
     }
 
    /* Initialize the decryption operation. */
-   if(EVP_DecryptInit_ex(ctx, EVP_rc4(), NULL, key, NULL) != 1) {
+   if(EVP_DecryptInit_ex(ctx, EVP_chacha20(), NULL, key, iv) != 1) {
         handleErrors();
    }
 
@@ -77,7 +79,7 @@ int stream_encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *k
     }
 
    /* Initialize the encryption operation. */ 
-   if(EVP_EncryptInit_ex(ctx, EVP_rc4(), NULL, key, NULL) != 1) {
+   if(EVP_EncryptInit_ex(ctx, EVP_chacha20(), NULL, key, iv) != 1) {
         handleErrors();
      }
 
@@ -156,26 +158,42 @@ int main() {
     printf("Client connected at IP: %s and port: %i\n", client_ip, client_port);
 
     // Declare key
-    unsigned char key[RC4_KEY_LENGTH];
+    //unsigned char key[RC4_KEY_LENGTH];
 
     // Generate key
-    if (!RAND_bytes(key, RC4_KEY_LENGTH)) {
+    // if (!RAND_bytes(key, RC4_KEY_LENGTH)) {
+    //     handleErrors();
+    // }
+
+    // Send the key to the client
+    //send(client_sock, key, RC4_KEY_LENGTH, 0);
+
+    // Declare key and iv
+    unsigned char key[CHACHA_KEY_LENGTH];
+    unsigned char iv[CHACHA_IV_LENGTH];
+
+    // Generate key and iv
+    if (!RAND_bytes(key, CHACHA_KEY_LENGTH)) {
+        handleErrors();
+    }
+    if (!RAND_bytes(iv, CHACHA_IV_LENGTH)) {
         handleErrors();
     }
 
     // Send the key to the client
-    send(client_sock, key, RC4_KEY_LENGTH, 0);
+    send(client_sock, key, CHACHA_KEY_LENGTH, 0);
+    send(client_sock, iv, CHACHA_IV_LENGTH, 0);
 
     // Receive client's message
     varread = recv(client_sock, client_message, 1024, 0);
-    printf("RC4 Encrypt: %x\n", client_message);
+    printf("CHACHA20 Encrypt: %x\n", client_message);
 
     // Decrypt the message
     unsigned char decrypted_message[1024];
-    int decrypted_message_len = stream_decrypt(client_message, varread, key, NULL, decrypted_message);
+    int decrypted_message_len = stream_decrypt(client_message, varread, key, iv, decrypted_message);
 
     // Print the decrypted message
-    printf("RC4 Decrypted message: %s\n", decrypted_message);
+    printf("CHACHA20 Decrypted message: %s\n", decrypted_message);
 
 
     // Receive OTP encrypted message
