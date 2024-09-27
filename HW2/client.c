@@ -199,7 +199,7 @@ int main() {
 
     // Bse64 encode the message
     unsigned char base64_encoded_message[1024];
-    int base64_encoded_message_len = base64_encode(decrypted_message, decrypted_message_len, base64_encoded_message);
+    int base64_encoded_message_len = base64_encode(ciphertext, ciphertext_len, base64_encoded_message);
 
     // Send the message to server:
     send(sock, base64_encoded_message, base64_encoded_message_len, 0);
