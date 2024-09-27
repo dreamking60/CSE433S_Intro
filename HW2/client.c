@@ -170,7 +170,7 @@ int main() {
     int ciphertext_len = stream_encrypt(client_message, strlen(client_message), chacha_key, chacha_iv, ciphertext);
 
     // print the encrypted message
-    printf("CHACHA20 Encrypt: %x\n",ciphertext);
+    printf("CHACHA20 Encrypt: %s\n",ciphertext);
 
     // Decrypt the message
     unsigned char decrypted_message[1024];
