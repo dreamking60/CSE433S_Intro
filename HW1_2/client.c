@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <openssl/evp.h>
 #include <openssl/rand.h>
+#include <openssl/err.h>
 
 #define PORT 10888
 #define KEY_LENGTH 32
@@ -19,11 +20,13 @@ void chacha20_decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned ch
     EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
     if (!ctx) handleErrors();
 
+    // Initialize decryption
     if (EVP_DecryptInit_ex(ctx, EVP_chacha20(), NULL, key, nonce) != 1) {
         handleErrors();
     }
 
     int len;
+    // Decrypt the ciphertext
     if (EVP_DecryptUpdate(ctx, plaintext, &len, ciphertext, ciphertext_len) != 1) {
         handleErrors();
     }
@@ -70,6 +73,10 @@ int main() {
 
     // Receive ciphertext from server
     int len = recv(sock, ciphertext, sizeof(ciphertext), 0);
+    if (len < 0) {
+        perror("Receiving ciphertext failed!");
+        return 1;
+    }
 
     // Decrypt message
     unsigned char decrypted[1024];

@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <openssl/evp.h>
 #include <openssl/rand.h>
+#include <openssl/err.h>
 
 #define PORT 10888
 #define KEY_LENGTH 32
@@ -19,12 +20,14 @@ void chacha20_encrypt(unsigned char *plaintext, int plaintext_len, unsigned char
     EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
     if (!ctx) handleErrors();
 
+    // Initialize encryption
     if (EVP_EncryptInit_ex(ctx, EVP_chacha20(), NULL, key, nonce) != 1) {
         handleErrors();
     }
 
     int len;
-    if (EVP_EncryptUpdate(ctx, ciphertext, &len, plaintext, plaintext_len != 1)) {
+    // Encrypt the plaintext
+    if (EVP_EncryptUpdate(ctx, ciphertext, &len, plaintext, plaintext_len) != 1) {
         handleErrors();
     }
 
@@ -79,6 +82,10 @@ int main() {
 
     // Receive message from client
     int len = recv(client_sock, buffer, sizeof(buffer), 0);
+    if (len < 0) {
+        perror("Receiving message failed!");
+        return 1;
+    }
 
     // Encrypt message
     chacha20_encrypt(buffer, len, key, nonce, ciphertext);
