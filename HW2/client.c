@@ -152,13 +152,13 @@ int main() {
     for (int i = 0; i < CHACHA_KEY_LENGTH; i++) {
         printf("%02x", chacha_key[i]);
     }
-    printf("\\n");
+    printf("\n");
 
     printf("IV: ");
     for (int i = 0; i < CHACHA_IV_LENGTH; i++) {
         printf("%02x", chacha_iv[i]);
     }
-    printf("\\n");
+    printf("\n");
 
     // Get input from the user:
     //printf("Enter message sent to the server: ");

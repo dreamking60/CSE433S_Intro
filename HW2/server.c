@@ -185,13 +185,13 @@ int main() {
     for (int i = 0; i < CHACHA_KEY_LENGTH; i++) {
         printf("%02x", key[i]);
     }
-    printf("\\n");
+    printf("\n");
 
     printf("IV: ");
     for (int i = 0; i < CHACHA_IV_LENGTH; i++) {
         printf("%02x", iv[i]);
     }
-    printf("\\n");
+    printf("\n");
 
     // correct the key
     send(client_sock, key, CHACHA_KEY_LENGTH, 0);
