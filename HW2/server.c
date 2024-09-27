@@ -220,7 +220,7 @@ int main() {
     int decrypted_message_len = stream_decrypt(client_message, varread, key, iv, decrypted_message);
 
     // Print the decrypted message
-    printf("CHACHA20 Decrypted message: %s\n", decrypted_message);
+    printf("CHACHA20 Decrypted message: %x\n", decrypted_message);
 
 
     // Receive OTP encrypted message

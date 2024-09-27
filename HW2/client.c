@@ -183,6 +183,7 @@ int main() {
     // Get input from the user:
     printf("Enter message sent to the server: ");
     fgets(client_message, sizeof(client_message), stdin);
+    printf("ChaCha20 Plain: %x\n", client_message);
 
     // Encrypt the message
     int ciphertext_len = stream_encrypt(client_message, strlen(client_message), chacha_key, chacha_iv, ciphertext);
