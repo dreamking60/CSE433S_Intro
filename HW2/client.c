@@ -178,6 +178,7 @@ int main() {
 
     // Print the decrypted message
     printf("CHACHA20 Decrypt: %s\n", decrypted_message);
+    printf("CHACHA20 Decrypt Length: %d\n", decrypted_message_len);
 
     // Send the message to server:
     send(sock, ciphertext, ciphertext_len, 0);
