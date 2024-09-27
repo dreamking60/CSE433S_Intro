@@ -54,10 +54,10 @@ int stream_decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char 
 
 
    /* Finalize the decryption. Further plaintext bytes may be written at this stage. */
-//    if(EVP_DecryptFinal_ex(ctx, plaintext + plaintext_len, &len) != 1) {
-//         handleErrors();
-//    }
-//     plaintext_len += len;
+   if(EVP_DecryptFinal_ex(ctx, plaintext + plaintext_len, &len) != 1) {
+        handleErrors();
+   }
+    plaintext_len += len;
 
    /* Clean up */
    EVP_CIPHER_CTX_free(ctx);
@@ -91,10 +91,10 @@ int stream_encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *k
 
 
    /* Finalize the encryption. Further ciphertext bytes may be written at this stage. */
-//    if(EVP_EncryptFinal_ex(ctx, ciphertext+ciphertext_len, &len) != 1) {
-//         handleErrors();
-//      }  
-//    ciphertext_len += len;
+   if(EVP_EncryptFinal_ex(ctx, ciphertext+ciphertext_len, &len) != 1) {
+        handleErrors();
+     }  
+   ciphertext_len += len;
 
    /* Clean up */
    EVP_CIPHER_CTX_free(ctx);

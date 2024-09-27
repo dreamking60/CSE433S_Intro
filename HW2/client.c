@@ -49,11 +49,11 @@ int stream_decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char 
    }
 
 
-//    /* Finalize the decryption. Further plaintext bytes may be written at this stage. */
-//    if(EVP_DecryptFinal_ex(ctx, plaintext + plaintext_len, &len) != 1) {
-//         handleErrors();
-//    }
-//     plaintext_len += len;
+   /* Finalize the decryption. Further plaintext bytes may be written at this stage. */
+   if(EVP_DecryptFinal_ex(ctx, plaintext + plaintext_len, &len) != 1) {
+        handleErrors();
+   }
+    plaintext_len += len;
 
 
    /* Clean up */
@@ -88,10 +88,10 @@ int stream_encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *k
 
 
    /* Finalize the encryption. Further ciphertext bytes may be written at this stage. */
-//    if(EVP_EncryptFinal_ex(ctx, ciphertext+ciphertext_len, &len) != 1) {
-//         handleErrors();
-//      }  
-//    ciphertext_len += len;
+   if(EVP_EncryptFinal_ex(ctx, ciphertext+ciphertext_len, &len) != 1) {
+        handleErrors();
+     }  
+   ciphertext_len += len;
 
    /* Clean up */
    EVP_CIPHER_CTX_free(ctx);
@@ -138,14 +138,6 @@ int main() {
     // Define the chacha20 key and iv
     unsigned char chacha_key[CHACHA_KEY_LENGTH];
     unsigned char chacha_iv[CHACHA_IV_LENGTH];
-
-    // Generate key and iv
-    if (!RAND_bytes(chacha_key, CHACHA_KEY_LENGTH)) {
-        handleErrors();
-    }
-    if (!RAND_bytes(chacha_iv, CHACHA_IV_LENGTH)) {
-        handleErrors();
-    }
 
     // recv key
     //varread = recv(sock, rc4_key, RC4_KEY_LENGTH, 0);
