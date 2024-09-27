@@ -206,7 +206,7 @@ int main() {
     printf("CHACHA20 Encrypt Length: %d\n", strlen(client_message));
     // print cipher as byte
     printf("CHACHA20 Encrypt Byte: ");
-    for (int i = 0; i < client_message; i++) {
+    for (int i = 0; i < strlen(client_message); i++) {
         printf("%02x",client_message[i]);
     }
     printf("\n");
