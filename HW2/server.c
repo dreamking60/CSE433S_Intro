@@ -182,7 +182,7 @@ int main() {
 
     // Send the key to the client
     send(client_sock, key, CHACHA_KEY_LENGTH, 0);
-    sleep(100);
+    sleep(1);
     send(client_sock, iv, CHACHA_IV_LENGTH, 0);
 
     // Receive client's message
