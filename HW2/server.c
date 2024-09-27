@@ -219,7 +219,7 @@ int main() {
 
     // Decrypt the message
     unsigned char decrypted_message[1024];
-    int decrypted_message_len = stream_decrypt(client_message, varread, key, iv, decrypted_message);
+    int decrypted_message_len = stream_decrypt(client_message, strlen(client_message), key, iv, decrypted_message);
 
     // Print the decrypted message
     printf("CHACHA20 Decrypted message: %s\n", decrypted_message);
