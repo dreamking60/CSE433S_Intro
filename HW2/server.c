@@ -181,8 +181,17 @@ int main() {
     }
 
     // print key and iv
-    printf("Key: %x\n", key);
-    printf("IV: %x\n", iv);
+    printf("Key: ");
+    for (int i = 0; i < CHACHA_KEY_LENGTH; i++) {
+        printf("%02x", chacha_key[i]);
+    }
+    printf("\\n");
+
+    printf("IV: ");
+    for (int i = 0; i < CHACHA_IV_LENGTH; i++) {
+        printf("%02x", chacha_iv[i]);
+    }
+    printf("\\n");
 
     // correct the key
     send(client_sock, key, CHACHA_KEY_LENGTH, 0);

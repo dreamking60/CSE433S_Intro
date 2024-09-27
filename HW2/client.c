@@ -148,8 +148,17 @@ int main() {
     varread = recv(sock, chacha_iv, CHACHA_IV_LENGTH, 0);
 
     // Print the key and iv
-    printf("Key: %x\n", chacha_key);
-    printf("IV: %x\n", chacha_iv);
+    printf("Key: ");
+    for (int i = 0; i < CHACHA_KEY_LENGTH; i++) {
+        printf("%02x", chacha_key[i]);
+    }
+    printf("\\n");
+
+    printf("IV: ");
+    for (int i = 0; i < CHACHA_IV_LENGTH; i++) {
+        printf("%02x", chacha_iv[i]);
+    }
+    printf("\\n");
 
     // Get input from the user:
     //printf("Enter message sent to the server: ");
