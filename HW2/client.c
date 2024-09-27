@@ -25,6 +25,16 @@ void handleErrors(void)
     abort();
 }
 
+// Base64 decode
+int base64_decode(const unsigned char *input, int length, unsigned char *output) {
+    return EVP_DecodeBlock(output, input, length);
+}
+
+// Base64 encode
+int base64_encode(const unsigned char *input, int length, unsigned char *output) {
+    return EVP_EncodeBlock(output, input, length);
+}
+
 int stream_decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *key, unsigned char *iv, unsigned char *plaintext)
 {
    /* Declare cipher context */
@@ -187,8 +197,12 @@ int main() {
     // Print the decrypted message
     printf("CHACHA20 Decrypt: %s\n", decrypted_message);
 
+    // Bse64 encode the message
+    unsigned char base64_encoded_message[1024];
+    int base64_encoded_message_len = base64_encode(decrypted_message, decrypted_message_len, base64_encoded_message);
+
     // Send the message to server:
-    send(sock, ciphertext, ciphertext_len, 0);
+    send(sock, base64_encoded_message, base64_encoded_message_len, 0);
 
     // Init OTP as length of the client_message
     char otp_key[strlen(client_message)];

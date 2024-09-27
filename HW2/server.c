@@ -29,6 +29,16 @@ void handleErrors(void)
     abort();
 }
 
+// Base64 decode
+int base64_decode(const unsigned char *input, int length, unsigned char *output) {
+    return EVP_DecodeBlock(output, input, length);
+}
+
+// Base64 encode
+int base64_encode(const unsigned char *input, int length, unsigned char *output) {
+    return EVP_EncodeBlock(output, input, length);
+}
+
 int stream_decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *key, unsigned char *iv, unsigned char *plaintext)
 {
    /* Declare cipher context */
@@ -211,9 +221,13 @@ int main() {
     }
     printf("\n");
 
+    // Base64 decode
+    unsigned char decoded_message[1024];
+    int decoded_message_len = base64_decode(client_message, strlen(client_message), decoded_message);
+
     // Decrypt the message
     unsigned char decrypted_message[1024];
-    int decrypted_message_len = stream_decrypt(client_message, strlen(client_message), key, iv, decrypted_message);
+    int decrypted_message_len = stream_decrypt(decoded_message, decoded_message_len, key, iv, decrypted_message);
 
     // Print the decrypted message
     printf("CHACHA20 Decrypted message: %s\n", decrypted_message);
