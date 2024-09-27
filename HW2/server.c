@@ -18,6 +18,7 @@
 #define AES_KEY_LENGTH 32
 #define AES_BLOCK_SIZE 16
 
+#define RC4_KEY_LENGTH 16
 
 // Handle errors
 void handleErrors(void)
@@ -26,7 +27,6 @@ void handleErrors(void)
     abort();
 }
 
-// Define the decryption function
 int stream_decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *key, unsigned char *iv, unsigned char *plaintext)
 {
    /* Declare cipher context */
@@ -41,7 +41,7 @@ int stream_decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char 
     }
 
    /* Initialize the decryption operation. */
-   if(EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv) != 1) {
+   if(EVP_DecryptInit_ex(ctx, EVP_rc4(), NULL, key, NULL) != 1) {
         handleErrors();
    }
 
@@ -77,7 +77,7 @@ int stream_encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *k
     }
 
    /* Initialize the encryption operation. */ 
-   if(EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv) != 1) {
+   if(EVP_EncryptInit_ex(ctx, EVP_rc4(), NULL, key, NULL) != 1) {
         handleErrors();
      }
 
@@ -100,6 +100,9 @@ int stream_encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *k
 
    return ciphertext_len;
 }
+
+
+// Define the decryption function
 
 int main() {
     // Declare variables
@@ -152,35 +155,27 @@ int main() {
     int client_port = ntohs(client_addr.sin_port);
     printf("Client connected at IP: %s and port: %i\n", client_ip, client_port);
 
-    // Declare key and iv
-    unsigned char key[AES_KEY_LENGTH];
-    unsigned char iv[AES_BLOCK_SIZE];
+    // Declare key
+    unsigned char key[RC4_KEY_LENGTH];
 
-    // Initialize key and iv
-    if(RAND_bytes(key, AES_KEY_LENGTH) != 1) {
-        printf("Error in generating key\n");
-        return;
+    // Generate key
+    if (!RAND_bytes(key, RC4_KEY_LENGTH)) {
+        handleErrors();
     }
 
-    if(RAND_bytes(iv, AES_BLOCK_SIZE) != 1) {
-        printf("Error in generating iv\n");
-        return;
-    }
-
-    // Send AES key and IV to client
-    send(client_sock, key, AES_KEY_LENGTH, 0);
-    send(client_sock, iv, AES_BLOCK_SIZE, 0);
+    // Send the key to the client
+    send(client_sock, key, RC4_KEY_LENGTH, 0);
 
     // Receive client's message
     varread = recv(client_sock, client_message, 1024, 0);
-    printf("AES Encrypt: %x\n", client_message);
+    printf("RC4 Encrypt: %x\n", client_message);
 
     // Decrypt the message
     unsigned char decrypted_message[1024];
-    int decrypted_message_len = stream_decrypt(client_message, varread, key, iv, decrypted_message);
+    int decrypted_message_len = stream_decrypt(client_message, varread, key, NULL, decrypted_message);
 
     // Print the decrypted message
-    printf("AES Decrypted message: %s\n", decrypted_message);
+    printf("RC4 Decrypted message: %s\n", decrypted_message);
 
 
     // Receive OTP encrypted message

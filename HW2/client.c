@@ -13,6 +13,8 @@
 
 #define AES_KEY_LENGTH 32
 #define AES_BLOCK_SIZE 16
+#define RC4_KEY_LENGTH 16
+
 
 void handleErrors(void)
 {
@@ -34,7 +36,7 @@ int stream_decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char 
     }
 
    /* Initialize the decryption operation. */
-   if(EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv) != 1) {
+   if(EVP_DecryptInit_ex(ctx, EVP_rc4(), NULL, key, NULL) != 1) {
         handleErrors();
    }
 
@@ -70,7 +72,7 @@ int stream_encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *k
     }
 
    /* Initialize the encryption operation. */ 
-   if(EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv) != 1) {
+   if(EVP_EncryptInit_ex(ctx, EVP_rc4(), NULL, key, NULL) != 1) {
         handleErrors();
      }
 
@@ -94,24 +96,6 @@ int stream_encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *k
    return ciphertext_len;
 }
 
-// Generate Diffie-Hellman keys and get AES key and IV
-void generateDHKeys(DH **dh, BIGNUM **pub_key, BIGNUM **priv_key) {
-    *dh = DH_new();
-    if (*dh == NULL) handleErrors();
-
-    if (1 != DH_generate_parameters_ex(*dh, 2048, DH_GENERATOR_2, NULL))
-        handleErrors();
-
-    if (1 != DH_generate_key(*dh)) handleErrors();
-
-    DH_get0_key(*dh, (const BIGNUM **)pub_key, (const BIGNUM **)priv_key);
-}
-
-void computeSharedSecret(DH *dh, BIGNUM *peer_pub_key, unsigned char *shared_secret, int *shared_secret_len) {
-    *shared_secret_len = DH_compute_key(shared_secret, peer_pub_key, dh);
-    if (*shared_secret_len == -1) handleErrors();
-}
-
 // One Time Pad encryption
 void otp_encrypt(char *plaintext, char *key, char *ciphertext) {
     for (int i = 0; i < strlen(plaintext); i++) {
@@ -130,8 +114,7 @@ int main() {
 
     ssize_t varread;
     unsigned char ciphertext[1024];
-    unsigned char aes_key[AES_KEY_LENGTH];
-    unsigned char aes_iv[AES_BLOCK_SIZE];
+    unsigned char rc4_key[RC4_KEY_LENGTH];
 
     // Create socket:
     int sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -148,19 +131,18 @@ int main() {
 
     // Perform Diffie-Hellman key exchange and decrypt AES key and IV
 
-    // recv key and iv
-    varread = recv(sock, aes_key, AES_KEY_LENGTH, 0);
-    varread = recv(sock, aes_iv, AES_BLOCK_SIZE, 0);
+    // recv key
+    varread = read(sock, rc4_key, RC4_KEY_LENGTH, 0);
 
     // Get input from the user:
     printf("Enter message sent to the server: ");
     fgets(client_message, sizeof(client_message), stdin);
 
     // Encrypt the message
-    int ciphertext_len = stream_encrypt(client_message, strlen(client_message), aes_key, aes_iv, ciphertext);
+    int ciphertext_len = stream_encrypt(client_message, strlen(client_message), rc4_key, NULL, ciphertext);
 
     // print the encrypted message
-    printf("AES Encrypt: %x\n",ciphertext);
+    printf("RC4 Encrypt: %x\n",ciphertext);
 
     // Send the message to server:
     send(sock, ciphertext, ciphertext_len, 0);
