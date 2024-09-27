@@ -173,6 +173,10 @@ int main() {
         }
     }
 
+    // Print the key and iv
+    printf("Key: %x\n", chacha_key);
+    printf("IV: %x\n", chacha_iv);
+
     // Get input from the user:
     printf("Enter message sent to the server: ");
     fgets(client_message, sizeof(client_message), stdin);

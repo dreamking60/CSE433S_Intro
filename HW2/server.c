@@ -180,7 +180,9 @@ int main() {
         handleErrors();
     }
 
-    // Send the key to the client
+    // print key and iv
+    printf("Key: %x\n", key);
+    printf("IV: %x\n", iv);
 
     // correct the key
     int times = 0;
