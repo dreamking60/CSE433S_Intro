@@ -173,6 +173,13 @@ int main() {
     printf("CHACHA20 Encrypt: %s\n",ciphertext);
     printf("CHACHA20 Encrypt Length: %d\n", ciphertext_len);
 
+    // print cipher as byte
+    printf("CHACHA20 Encrypt Byte: ");
+    for (int i = 0; i < ciphertext_len; i++) {
+        printf("%02x",ciphertext[i]);
+    }
+    printf("\n");
+
     // Decrypt the message
     unsigned char decrypted_message[1024];
     int decrypted_message_len = stream_decrypt(ciphertext, ciphertext_len, chacha_key, chacha_iv, decrypted_message);

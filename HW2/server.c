@@ -204,6 +204,12 @@ int main() {
     varread = recv(client_sock, client_message, 1024, 0);
     printf("CHACHA20 Encrypt: %s\n", client_message);
     printf("CHACHA20 Encrypt Length: %d\n", strlen(client_message));
+    // print cipher as byte
+    printf("CHACHA20 Encrypt Byte: ");
+    for (int i = 0; i < client_message; i++) {
+        printf("%02x",client_message[i]);
+    }
+    printf("\n");
 
     // Decrypt the message
     unsigned char decrypted_message[1024];
