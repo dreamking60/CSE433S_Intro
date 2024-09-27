@@ -157,9 +157,9 @@ int main() {
         send(sock, chacha_key, CHACHA_KEY_LENGTH, 0);
 
         // Receive confirmation message from server
-        varread = recv(sock, buffer, BUFFER_SIZE, 0);
-        buffer[varread] = '\0';
-        if (strcmp(buffer, "Key not received correctly!") != 0) {
+        varread = recv(sock, client_message, 1024, 0);
+        client_message[varread] = '\0';
+        if (strcmp(client_message, "Key not received correctly!") != 0) {
             break;
         }
     }
@@ -173,9 +173,9 @@ int main() {
         send(sock, chacha_iv, CHACHA_IV_LENGTH, 0);
 
         // Receive confirmation message from server
-        varread = recv(sock, buffer, BUFFER_SIZE, 0);
-        buffer[varread] = '\0';
-        if (strcmp(buffer, "IV not received correctly!") != 0) {
+        varread = recv(sock, client_message, 1024, 0);
+        client_message[varread] = '\0';
+        if (strcmp(client_message, "IV not received correctly!") != 0) {
             break;
         }
     }
