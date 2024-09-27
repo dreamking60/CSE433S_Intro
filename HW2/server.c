@@ -181,9 +181,35 @@ int main() {
     }
 
     // Send the key to the client
-    send(client_sock, key, CHACHA_KEY_LENGTH, 0);
-    sleep(1);
-    send(client_sock, iv, CHACHA_IV_LENGTH, 0);
+
+    // correct the key
+    int times = 0;
+    do {
+        send(client_sock, key, CHACHA_KEY_LENGTH, 0);
+        unsigned char keyread[CHACHA_KEY_LENGTH];
+        varread = recv(client_sock, keyread, CHACHA_KEY_LENGTH, 0);
+        if(keyread != key) {
+            send(client_sock, "Key not received correctly!", 1024, 0);
+        } else {
+            break;
+        }
+        times++;
+    } while(times < 3);
+
+    // Send the iv to the client
+    times = 0;
+    do {
+        send(client_sock, iv, CHACHA_IV_LENGTH, 0);
+        unsigned char ivread[CHACHA_IV_LENGTH];
+        varread = recv(client_sock, ivread, CHACHA_IV_LENGTH, 0);
+        if(ivread != iv) {
+            send(client_sock, "IV not received correctly!", 1024, 0);
+        } else {
+            break;
+        }
+        times++;
+    } while(times < 3);
+
 
     // Receive client's message
     varread = recv(client_sock, client_message, 1024, 0);

@@ -148,8 +148,37 @@ int main() {
 
     // recv key
     //varread = recv(sock, rc4_key, RC4_KEY_LENGTH, 0);
-    varread = recv(sock, chacha_key, CHACHA_KEY_LENGTH, 0);
-    varread = recv(sock, chacha_iv, CHACHA_IV_LENGTH, 0);
+    // Receive key from server and send it back for confirmation
+    for (int times = 0; times < 3; times++) {
+        varread = recv(sock, chacha_key, CHACHA_KEY_LENGTH, 0);
+        if (varread != CHACHA_KEY_LENGTH) {
+            handleErrors();
+        }
+        send(sock, chacha_key, CHACHA_KEY_LENGTH, 0);
+
+        // Receive confirmation message from server
+        varread = recv(sock, buffer, BUFFER_SIZE, 0);
+        buffer[varread] = '\0';
+        if (strcmp(buffer, "Key not received correctly!") != 0) {
+            break;
+        }
+    }
+
+    // Receive IV from server and send it back for confirmation
+    for (int times = 0; times < 3; times++) {
+        varread = recv(sock, chacha_iv, CHACHA_IV_LENGTH, 0);
+        if (varread != CHACHA_IV_LENGTH) {
+            handleErrors();
+        }
+        send(sock, chacha_iv, CHACHA_IV_LENGTH, 0);
+
+        // Receive confirmation message from server
+        varread = recv(sock, buffer, BUFFER_SIZE, 0);
+        buffer[varread] = '\0';
+        if (strcmp(buffer, "IV not received correctly!") != 0) {
+            break;
+        }
+    }
 
     // Get input from the user:
     printf("Enter message sent to the server: ");
