@@ -132,7 +132,7 @@ int main() {
     // Perform Diffie-Hellman key exchange and decrypt AES key and IV
 
     // recv key
-    varread = read(sock, rc4_key, RC4_KEY_LENGTH, 0);
+    varread = recv(sock, rc4_key, RC4_KEY_LENGTH, 0);
 
     // Get input from the user:
     printf("Enter message sent to the server: ");
