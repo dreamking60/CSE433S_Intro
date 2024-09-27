@@ -209,21 +209,21 @@ int main() {
     // Send the iv to the client
     send(client_sock, iv, CHACHA_IV_LENGTH, 0);
 
-
     // Receive client's message
     varread = recv(client_sock, client_message, 1024, 0);
-    printf("CHACHA20 Encrypt: %s\n", client_message);
-    printf("CHACHA20 Encrypt Length: %d\n", strlen(client_message));
-    // print cipher as byte
-    printf("CHACHA20 Encrypt Byte: ");
-    for (int i = 0; i < strlen(client_message); i++) {
-        printf("%02x",client_message[i]);
-    }
-    printf("\n");
 
     // Base64 decode
     unsigned char decoded_message[1024];
     int decoded_message_len = base64_decode(client_message, strlen(client_message), decoded_message);
+
+    printf("CHACHA20 Encrypt: %s\n", decoded_message);
+    printf("CHACHA20 Encrypt Length: %d\n", strlen(decoded_message));
+    // print cipher as byte
+    printf("CHACHA20 Encrypt Byte: ");
+    for (int i = 0; i < strlen(decoded_message); i++) {
+        printf("%02x",decoded_message[i]);
+    }
+    printf("\n");
 
     // Decrypt the message
     unsigned char decrypted_message[1024];
