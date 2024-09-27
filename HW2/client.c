@@ -152,7 +152,7 @@ int main() {
         // Receive confirmation message from server
         varread = recv(sock, client_message, 1024, 0);
         client_message[varread] = '\0';
-        if (strcmp(client_message, "Key not received correctly!") != 0) {
+        if (strcmp(client_message, "Key not received correctly!") == 0) {
             break;
         }
     }
@@ -168,7 +168,7 @@ int main() {
         // Receive confirmation message from server
         varread = recv(sock, client_message, 1024, 0);
         client_message[varread] = '\0';
-        if (strcmp(client_message, "IV not received correctly!") != 0) {
+        if (strcmp(client_message, "IV not received correctly!") == 0) {
             break;
         }
     }
