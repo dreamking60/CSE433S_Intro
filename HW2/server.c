@@ -183,13 +183,13 @@ int main() {
     // print key and iv
     printf("Key: ");
     for (int i = 0; i < CHACHA_KEY_LENGTH; i++) {
-        printf("%02x", chacha_key[i]);
+        printf("%02x", key[i]);
     }
     printf("\\n");
 
     printf("IV: ");
     for (int i = 0; i < CHACHA_IV_LENGTH; i++) {
-        printf("%02x", chacha_iv[i]);
+        printf("%02x", iv[i]);
     }
     printf("\\n");
 
