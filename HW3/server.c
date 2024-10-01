@@ -168,7 +168,7 @@ int main() {
     unsigned char iv[AES_BLOCK_SIZE];
 
     // Base64 decoded message
-    unsigned char decoded_message[2048];
+    unsigned char decoded_message[4096];
     int decoded_message_len;
 
     // plain text
@@ -239,9 +239,9 @@ int main() {
 
     // Send the iv to the client
     send(client_sock, iv, AES_BLOCK_SIZE, 0);
-    
+
     // Receive client's message
-    varread = recv(client_sock, client_message, 2048, 0);
+    varread = recv(client_sock, client_message, 4096, 0);
 
     // Base64 decode
     decoded_message_len = base64_decode(client_message, varread, decoded_message);
