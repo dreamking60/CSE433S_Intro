@@ -166,13 +166,13 @@ int main() {
     // Print the key and iv
     printf("Key: ");
     for (int i = 0; i < AES_KEY_LENGTH; i++) {
-        printf("%02x", key[i]);
+        printf("%02x", AES_key[i]);
     }
     printf("\n");
 
     printf("IV: ");
     for (int i = 0; i < AES_BLOCK_SIZE; i++) {
-        printf("%02x", iv[i]);
+        printf("%02x", AES_iv[i]);
     }
     printf("\n");
 
