@@ -114,7 +114,7 @@ int main() {
     // Declare variables
 	ssize_t varread;
     char server_message[1024];
-    char client_message[1024];
+    char client_message[2048];
 
     struct sockaddr_in server_addr;
     char server_ip[16]= "192.168.92.132";
@@ -213,10 +213,10 @@ int main() {
 
 
     // Receive client's message
-    varread = recv(client_sock, client_message, 1024, 0);
+    varread = recv(client_sock, client_message, 2048, 0);
 
     // Base64 decode
-    decoded_message_len = base64_decode(client_message, strlen(client_message), decoded_message);
+    decoded_message_len = base64_decode(client_message, varread, decoded_message);
 
     // Print the decoded message as hex
     printf("Decoded Message: ");
