@@ -23,13 +23,33 @@ void handleErrors(void)
 
 // Base64 decode
 int base64_decode(const unsigned char *input, int length, unsigned char *output) {
-    int decoded_len = EVP_DecodeBlock(output, input, length);
+    // Create a copy of the input to modify it
+    unsigned char *temp_input = (unsigned char *)malloc(length + 1);
+    if (!temp_input) {
+        return -1; // Memory allocation failed
+    }
+    memcpy(temp_input, input, length);
+    temp_input[length] = '\0'; // Null-terminate the input
 
-    // Remove padding if present
-    while (decoded_len > 0 && output[decoded_len - 1] == '\0') {
-        decoded_len--;
+    // Calculate the number of padding characters
+    int padding = 0;
+    if (length >= 2 && temp_input[length - 1] == '=' && temp_input[length - 2] == '=') {
+        padding = 2;
+    } else if (length >= 1 && temp_input[length - 1] == '=') {
+        padding = 1;
     }
 
+    // Decode the input
+    int decoded_len = EVP_DecodeBlock(output, temp_input, length);
+    if (decoded_len < 0) {
+        free(temp_input);
+        return -1; // Decoding failed
+    }
+
+    // Adjust the decoded length based on the padding
+    decoded_len -= padding;
+
+    free(temp_input);
     return decoded_len;
 }
 
