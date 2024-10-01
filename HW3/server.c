@@ -27,7 +27,7 @@ void handleErrors(void)
 
 // Base64 decode
 int base64_decode(const unsigned char *input, int length, unsigned char *output) {
-int len = strlen(base64_encoded);
+    int len = length;
     int padding = 0;
 
     // Calculate padding
@@ -43,7 +43,8 @@ int len = strlen(base64_encoded);
     // Adjust length based on padding
     decoded_len -= padding;
 
-    return decoded_len;}
+    return decoded_len;
+}
 
 // Base64 encode
 int base64_encode(const unsigned char *input, int length, unsigned char *output) {
