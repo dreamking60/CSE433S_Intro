@@ -115,8 +115,14 @@ int main() {
     char client_message[1024];
 
     ssize_t varread;
+
+    // Ciphertext
     unsigned char ciphertext[1024];
     int ciphertext_len;
+
+    // Base64 encode ciphertext
+    unsigned char base64_encoded_ciphertext[1024];
+    int base64_encoded_ciphertext_len;
 
     // AES key and iv
     unsigned char AES_key[AES_KEY_LENGTH];
@@ -164,8 +170,11 @@ int main() {
     // Encrypt the message
     ciphertext_len = block_encrypt(client_message, strlen(client_message), AES_key, AES_iv, ciphertext);
 
+    // Base64 encode the ciphertext
+    base64_encoded_ciphertext_len = base64_encode(ciphertext, ciphertext_len, base64_encoded_ciphertext);
+
     // Send the message to server:
-    send(sock, ciphertext, ciphertext_len, 0);
+    send(sock, base64_encoded_ciphertext, base64_encoded_ciphertext_len, 0);
 
     // Receive the server's response:
     varread = read(sock, server_message, 1024);
