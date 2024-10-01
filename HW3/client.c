@@ -159,7 +159,7 @@ int main() {
     ssize_t varread;
 
     // Ciphertext
-    unsigned char ciphertext[1024];
+    unsigned char ciphertext[4096];
     int ciphertext_len;
 
     // Base64 encode ciphertext
