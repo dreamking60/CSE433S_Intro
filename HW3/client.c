@@ -23,13 +23,34 @@ void handleErrors(void)
 
 // Base64 decode
 int base64_decode(const unsigned char *input, int length, unsigned char *output) {
-    return EVP_DecodeBlock(output, input, length);
+    int decoded_len = EVP_DecodeBlock(output, input, length);
+
+    // Remove padding if present
+    while (decoded_len > 0 && output[decoded_len - 1] == '\0') {
+        decoded_len--;
+    }
+
+    return decoded_len;
 }
 
 // Base64 encode
 int base64_encode(const unsigned char *input, int length, unsigned char *output) {
-    return EVP_EncodeBlock(output, input, length);
+    int encoded_len = EVP_EncodeBlock(output, input, length);
+
+    // Calculate the number of padding characters needed
+    int padding = (3 - (length % 3)) % 3;
+
+    // Add padding characters if necessary
+    for (int i = 0; i < padding; i++) {
+        output[encoded_len + i] = '=';
+    }
+
+    // Null-terminate the encoded string
+    output[encoded_len + padding] = '\0';
+
+    return encoded_len + padding;
 }
+
 
 int block_decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *key, unsigned char *iv, unsigned char *plaintext)
 {

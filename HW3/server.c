@@ -224,6 +224,9 @@ int main() {
     base64_encoded_key_len = base64_encode(key, AES_KEY_LENGTH, base64_encoded_key);
     base64_encoded_iv_len = base64_encode(iv, AES_BLOCK_SIZE, base64_encoded_iv);
 
+    // Print the base64 encoded key and iv
+    printf("Base64 Encoded Key: %s\n", base64_encoded_key);
+    printf("Base64 Encoded IV: %s\n", base64_encoded_iv);
 
     // Send the key to the client
     send(client_sock, base64_encoded_key, base64_encoded_key_len, 0);
