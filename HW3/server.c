@@ -134,7 +134,7 @@ int main() {
     int base64_encoded_iv_len;
 
     // Base64 decoded message
-    unsigned char decoded_message[4096];
+    unsigned char decoded_message[1024];
     int decoded_message_len;
 
     // plain text
@@ -218,8 +218,12 @@ int main() {
     // Base64 decode
     decoded_message_len = base64_decode(client_message, strlen(client_message), decoded_message);
 
-    // Print the decoded message
-    printf("Encrypted Message: %s\n", decoded_message);
+    // Print the decoded message as hex
+    printf("Decoded Message: ");
+    for (int i = 0; i < decoded_message_len; i++) {
+        printf("%02x", decoded_message[i]);
+    }
+    printf("\n");
 
     // Decrypt the message
     plaintext_len = block_decrypt(decoded_message, decoded_message_len, key, iv, plaintext);
