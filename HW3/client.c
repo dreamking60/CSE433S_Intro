@@ -24,12 +24,12 @@ void handleErrors(void)
 }
 
 // Base64 decode
-void base64_decode(const unsigned char *input, int length, unsigned char *output) {
+int base64_decode(const unsigned char *input, int length, unsigned char *output) {
     return EVP_DecodeBlock(output, input, length);
 }
 
 // Base64 encode
-void base64_encode(const unsigned char *input, int length, unsigned char *output) {
+int base64_encode(const unsigned char *input, int length, unsigned char *output) {
     return EVP_EncodeBlock(output, input, length);
 }
 
