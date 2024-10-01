@@ -244,17 +244,18 @@ int main() {
     varread = recv(client_sock, client_message, 4096, 0);
 
     // Base64 decode
-    decoded_message_len = base64_decode(client_message, varread, decoded_message);
+    // decoded_message_len = base64_decode(client_message, varread, decoded_message);
 
     // Print the decoded message as hex
-    printf("Decoded Message: ");
-    for (int i = 0; i < decoded_message_len; i++) {
-        printf("%02x", decoded_message[i]);
-    }
-    printf("\n");
+    // printf("Decoded Message: ");
+    // for (int i = 0; i < decoded_message_len; i++) {
+    //     printf("%02x", decoded_message[i]);
+    // }
+    // printf("\n");
 
     // Decrypt the message
-    plaintext_len = block_decrypt(decoded_message, decoded_message_len, key, iv, plaintext);
+    //plaintext_len = block_decrypt(decoded_message, decoded_message_len, key, iv, plaintext);
+    plaintext_len = block_decrypt(client_message, varread, key, iv, plaintext);
 
     // Print the decrypted message
     printf("Decrypted Message: %s\n", plaintext);
