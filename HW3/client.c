@@ -183,9 +183,15 @@ int main() {
     // Encrypt the message
     ciphertext_len = block_encrypt(client_message, strlen(client_message), AES_key, AES_iv, ciphertext);
 
+    // print the ciphertext as hex
+    printf("Ciphertext: ");
+    for (int i = 0; i < ciphertext_len; i++) {
+        printf("%02x", ciphertext[i]);
+    }
+    printf("\n");
+
     // Base64 encode the ciphertext
     base64_encoded_ciphertext_len = base64_encode(ciphertext, ciphertext_len, base64_encoded_ciphertext);
-    printf("Length: %d\n", base64_encoded_ciphertext_len);
 
     // Send the message to server:
     send(sock, base64_encoded_ciphertext, base64_encoded_ciphertext_len, 0);
