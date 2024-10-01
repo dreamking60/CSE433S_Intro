@@ -23,9 +23,12 @@ void handleErrors(void)
     abort();
 }
 
-// Base64 decode
+// Base64 decode 
 int base64_decode(const unsigned char *input, int length, unsigned char *output) {
-    return EVP_DecodeBlock(output, input, length);
+    int len = EVP_DecodeBlock(output, input, length);
+    //remove '\0' from the output
+    while(output[len-1] == '\0') len--;
+    return len;
 }
 
 // Base64 encode
