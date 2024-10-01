@@ -45,7 +45,7 @@ int block_decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *
     }
 
    /* Initialize the decryption operation. */
-   if(EVP_DecryptInit_ex(ctx, EVP_AES_256_CBC(), NULL, key, iv) != 1) {
+   if(EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv) != 1) {
         handleErrors();
    }
 
@@ -81,7 +81,7 @@ int block_encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *ke
     }
 
    /* Initialize the encryption operation. */ 
-   if(EVP_EncryptInit_ex(ctx, EVP_AES_256_CBC(), NULL, key, iv) != 1) {
+   if(EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv) != 1) {
         handleErrors();
      }
 

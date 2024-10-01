@@ -49,7 +49,7 @@ int block_decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *
     }
 
    /* Initialize the decryption operation. */
-   if(EVP_DecryptInit_ex(ctx, EVP_AES_256_CBC(), NULL, key, iv) != 1) {
+   if(EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv) != 1) {
         handleErrors();
    }
 
@@ -85,7 +85,7 @@ int block_encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *ke
     }
 
    /* Initialize the encryption operation. */ 
-   if(EVP_EncryptInit_ex(ctx, EVP_AES_256_CBC(), NULL, key, iv) != 1) {
+   if(EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv) != 1) {
         handleErrors();
      }
 
@@ -135,11 +135,11 @@ int main() {
 
     // Base64 decoded message
     unsigned char decoded_message[1024];
-    int decoded_message_len
+    int decoded_message_len;
 
     // plain text
     unsigned char plaintext[1024];
-    int plaintext_len
+    int plaintext_len;
 
     // Create socket
     int client_sock;
