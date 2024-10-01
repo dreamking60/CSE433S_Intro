@@ -239,10 +239,7 @@ int main() {
 
     // Send the iv to the client
     send(client_sock, iv, AES_BLOCK_SIZE, 0);
-
-    // print send complete
-    printf("Key and IV sent to client\n");
-
+    
     // Receive client's message
     varread = recv(client_sock, client_message, 2048, 0);
 
