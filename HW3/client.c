@@ -172,6 +172,7 @@ int main() {
 
     // Base64 encode the ciphertext
     base64_encoded_ciphertext_len = base64_encode(ciphertext, ciphertext_len, base64_encoded_ciphertext);
+    printf("Length: %d\n", base64_encoded_ciphertext_len);
 
     // Send the message to server:
     send(sock, base64_encoded_ciphertext, base64_encoded_ciphertext_len, 0);
