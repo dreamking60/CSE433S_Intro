@@ -254,6 +254,8 @@ int main() {
     // Send the iv to the client
     send(client_sock, base64_encoded_iv, base64_encoded_iv_len, 0);
 
+    // print send complete
+    printf("Key and IV sent to client\n");
 
     // Receive client's message
     varread = recv(client_sock, client_message, 2048, 0);
