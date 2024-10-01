@@ -147,6 +147,9 @@ int main() {
     // Receive the key from the server
     varread = recv(sock, base64_encoded_key, 1024, 0);
 
+    // sleep to get the iv
+    sleep(1);
+
     // Receive the iv from the server
     varread = recv(sock, base64_encoded_iv, 1024, 0);
 
