@@ -197,9 +197,6 @@ int main() {
     int iv_len = 0;
     key_len = recv(sock, base64_encoded_key, 4096, 0);
 
-    // sleep to get the iv
-    sleep(1);
-
     // Receive the iv from the server
     iv_len = recv(sock, base64_encoded_iv, 4096, 0);
 
