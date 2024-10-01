@@ -154,7 +154,7 @@ int main() {
     // Declare variables
 	ssize_t varread;
     char server_message[1024];
-    char client_message[2048];
+    char client_message[4096];
 
     struct sockaddr_in server_addr;
     char server_ip[16]= "192.168.92.132";
