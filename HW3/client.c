@@ -222,6 +222,9 @@ int main() {
     // Base64 encode the ciphertext
     base64_encoded_ciphertext_len = base64_encode(ciphertext, ciphertext_len, base64_encoded_ciphertext);
 
+    // print the base64 encoded ciphertext
+    printf("Base64 Encoded Ciphertext: %s\n", base64_encoded_ciphertext);
+
     // Send the message to server:
     send(sock, base64_encoded_ciphertext, base64_encoded_ciphertext_len, 0);
 
