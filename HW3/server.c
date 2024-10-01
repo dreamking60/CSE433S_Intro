@@ -13,6 +13,7 @@
 #include <openssl/aes.h>
 #include <openssl/dh.h>
 #include <openssl/bio.h>
+#include <openssl/buffer.h>
 #include <openssl/engine.h>
 
 #define AES_KEY_LENGTH 32
@@ -27,39 +28,51 @@ void handleErrors(void)
 
 // Base64 decode
 int base64_decode(const unsigned char *input, int length, unsigned char *output) {
-    // Create a copy of the input to modify it
-    unsigned char *temp_input = (unsigned char *)malloc(length + 1);
-    if (!temp_input) {
-        return -1; // Memory allocation failed
-    }
-    memcpy(temp_input, input, length);
-    temp_input[length] = '\0'; // Null-terminate the input
+    BIO *bio, *b64;
+    int decoded_len;
 
-    // Calculate the number of padding characters
-    int padding = 0;
-    if (length >= 2 && temp_input[length - 1] == '=' && temp_input[length - 2] == '=') {
-        padding = 2;
-    } else if (length >= 1 && temp_input[length - 1] == '=') {
-        padding = 1;
-    }
+    b64 = BIO_new(BIO_f_base64());
+    bio = BIO_new_mem_buf(input, length);
+    bio = BIO_push(b64, bio);
 
-    // Decode the input
-    int decoded_len = EVP_DecodeBlock(output, temp_input, length);
+    // Disable newlines
+    BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL);
+
+    // Decode the input data
+    decoded_len = BIO_read(bio, output, length);
     if (decoded_len < 0) {
-        free(temp_input);
+        BIO_free_all(bio);
         return -1; // Decoding failed
     }
 
-    // Adjust the decoded length based on the padding
-    decoded_len -= padding;
+    // Clean up
+    BIO_free_all(bio);
 
-    free(temp_input);
     return decoded_len;
 }
 
 // Base64 encode
 int base64_encode(const unsigned char *input, int length, unsigned char *output) {
-    return EVP_EncodeBlock(output, input, length);
+    BIO *bio, *b64;
+    BUF_MEM *buffer_ptr;
+
+    b64 = BIO_new(BIO_f_base64());
+    bio = BIO_new(BIO_s_mem());
+    bio = BIO_push(b64, bio);
+
+    // Write the input data to the BIO
+    BIO_write(bio, input, length);
+    BIO_flush(bio);
+    BIO_get_mem_ptr(bio, &buffer_ptr);
+
+    // Copy the encoded data to the output buffer
+    memcpy(output, buffer_ptr->data, buffer_ptr->length);
+    output[buffer_ptr->length] = '\0'; // Null-terminate the output
+
+    // Clean up
+    BIO_free_all(bio);
+
+    return buffer_ptr->length;
 }
 
 int block_decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *key, unsigned char *iv, unsigned char *plaintext)
