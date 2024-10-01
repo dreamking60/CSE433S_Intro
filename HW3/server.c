@@ -27,21 +27,12 @@ void handleErrors(void)
 
 // Base64 decode
 int base64_decode(const unsigned char *input, int length, unsigned char *output) {
-    int len = length;
-    int padding = 0;
+    int decoded_len = EVP_DecodeBlock(output, input, length);
 
-    // Calculate padding
-    if (base64_encoded[len - 1] == '=') padding++;
-    if (base64_encoded[len - 2] == '=') padding++;
-
-    // Decode
-    int decoded_len = EVP_DecodeBlock(output, input, len);
-    if (decoded_len < 0) {
-        handleErrors();
+    // Remove padding if present
+    while (decoded_len > 0 && output[decoded_len - 1] == '\0') {
+        decoded_len--;
     }
-
-    // Adjust length based on padding
-    decoded_len -= padding;
 
     return decoded_len;
 }
