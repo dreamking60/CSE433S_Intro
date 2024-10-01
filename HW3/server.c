@@ -134,7 +134,7 @@ int main() {
     int base64_encoded_iv_len;
 
     // Base64 decoded message
-    unsigned char decoded_message[1024];
+    unsigned char decoded_message[2048];
     int decoded_message_len;
 
     // plain text
