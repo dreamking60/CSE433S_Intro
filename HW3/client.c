@@ -163,6 +163,19 @@ int main() {
     base64_decoded_key_len = base64_decode(base64_encoded_key, strlen(base64_encoded_key), AES_key);
     base64_decoded_iv_len = base64_decode(base64_encoded_iv, strlen(base64_encoded_iv), AES_iv);
 
+    // Print the key and iv
+    printf("Key: ");
+    for (int i = 0; i < AES_KEY_LENGTH; i++) {
+        printf("%02x", key[i]);
+    }
+    printf("\n");
+
+    printf("IV: ");
+    for (int i = 0; i < AES_BLOCK_SIZE; i++) {
+        printf("%02x", iv[i]);
+    }
+    printf("\n");
+
     // Get input from the user:
     printf("Enter message sent to the server: ");
     fgets(client_message, sizeof(client_message), stdin);
