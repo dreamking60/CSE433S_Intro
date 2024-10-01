@@ -212,6 +212,12 @@ int main() {
     // Encrypt the message
     ciphertext_len = block_encrypt(client_message, strlen(client_message), AES_key, AES_iv, ciphertext);
 
+    // Base64 encode the ciphertext
+    base64_encoded_ciphertext_len = base64_encode(ciphertext, ciphertext_len, base64_encoded_ciphertext);
+
+    // Send the message to server:
+    send(sock, base64_encoded_ciphertext, base64_encoded_ciphertext_len, 0);
+
     // print the ciphertext as hex
     printf("Ciphertext: ");
     for (int i = 0; i < ciphertext_len; i++) {
@@ -219,14 +225,6 @@ int main() {
     }
     printf("\n");
 
-    // Base64 encode the ciphertext
-    base64_encoded_ciphertext_len = base64_encode(ciphertext, ciphertext_len, base64_encoded_ciphertext);
-
-    // print the base64 encoded ciphertext
-    printf("Base64 Encoded Ciphertext: %s\n", base64_encoded_ciphertext);
-
-    // Send the message to server:
-    send(sock, base64_encoded_ciphertext, base64_encoded_ciphertext_len, 0);
 
     // Receive the server's response:
     varread = read(sock, server_message, 1024);
