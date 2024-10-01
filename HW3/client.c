@@ -213,12 +213,10 @@ int main() {
     ciphertext_len = block_encrypt(client_message, strlen(client_message), AES_key, AES_iv, ciphertext);
 
     // Base64 encode the ciphertext
-    // base64_encoded_ciphertext_len = base64_encode(ciphertext, ciphertext_len, base64_encoded_ciphertext);
+    base64_encoded_ciphertext_len = base64_encode(ciphertext, ciphertext_len, base64_encoded_ciphertext);
 
     // Send the message to server:
-    // send(sock, base64_encoded_ciphertext, base64_encoded_ciphertext_len, 0);
-
-    send(sock, ciphertext, ciphertext_len, 0);
+    send(sock, base64_encoded_ciphertext, base64_encoded_ciphertext_len, 0);
 
     // print the ciphertext as hex
     printf("Ciphertext: ");
