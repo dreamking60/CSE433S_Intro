@@ -170,15 +170,6 @@ int main() {
     unsigned char AES_key[AES_KEY_LENGTH];
     unsigned char AES_iv[AES_BLOCK_SIZE];
 
-
-    // Base64 encoded key and iv
-    unsigned char base64_encoded_key[4096];
-    unsigned char base64_encoded_iv[4096];
-
-    // Decode length
-    int base64_decoded_key_len;
-    int base64_decoded_iv_len;
-
     // Create socket:
     int sock = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -193,23 +184,13 @@ int main() {
     }
 
     // Receive the key from the server
-    int key_len = 0;
-    int iv_len = 0;
-    key_len = recv(sock, base64_encoded_key, 4096, 0);
+    varread = read(sock, AES_key, AES_KEY_LENGTH);
 
     // sleep
     sleep(1);
 
     // Receive the iv from the server
-    iv_len = recv(sock, base64_encoded_iv, 4096, 0);
-
-    // print key and iv in base64
-    printf("Base64 Encoded Key: %s\n", base64_encoded_key);
-    printf("Base64 Encoded IV: %s\n", base64_encoded_iv);
-
-    // Base64 decode the key and iv
-    base64_decoded_key_len = base64_decode(base64_encoded_key, key_len, AES_key);
-    base64_decoded_iv_len = base64_decode(base64_encoded_iv, iv_len, AES_iv);
+    varread = read(sock, AES_iv, AES_BLOCK_SIZE);
 
     // Print the key and iv
     printf("Key: ");

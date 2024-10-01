@@ -167,12 +167,6 @@ int main() {
     unsigned char key[AES_KEY_LENGTH];
     unsigned char iv[AES_BLOCK_SIZE];
 
-    // Base64 encoded key and iv
-    unsigned char base64_encoded_key[AES_KEY_LENGTH];
-    unsigned char base64_encoded_iv[AES_BLOCK_SIZE];
-    int base64_encoded_key_len;
-    int base64_encoded_iv_len;
-
     // Base64 decoded message
     unsigned char decoded_message[2048];
     int decoded_message_len;
@@ -240,19 +234,11 @@ int main() {
     }
     printf("\n");
 
-    // Base64 encode the key and iv
-    base64_encoded_key_len = base64_encode(key, AES_KEY_LENGTH, base64_encoded_key);
-    base64_encoded_iv_len = base64_encode(iv, AES_BLOCK_SIZE, base64_encoded_iv);
-
-    // Print the base64 encoded key and iv
-    printf("Base64 Encoded Key: %s\n", base64_encoded_key);
-    printf("Base64 Encoded IV: %s\n", base64_encoded_iv);
-
     // Send the key to the client
-    send(client_sock, base64_encoded_key, base64_encoded_key_len, 0);
+    send(client_sock, key, AES_KEY_LENGTH, 0);
 
     // Send the iv to the client
-    send(client_sock, base64_encoded_iv, base64_encoded_iv_len, 0);
+    send(client_sock, iv, AES_BLOCK_SIZE, 0);
 
     // print send complete
     printf("Key and IV sent to client\n");
