@@ -121,7 +121,7 @@ int main() {
     int ciphertext_len;
 
     // Base64 encode ciphertext
-    unsigned char base64_encoded_ciphertext[1024];
+    unsigned char base64_encoded_ciphertext[2048];
     int base64_encoded_ciphertext_len;
 
     // AES key and iv
