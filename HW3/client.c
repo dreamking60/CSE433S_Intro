@@ -179,21 +179,23 @@ int main() {
     }
 
     // Receive the key from the server
-    varread = recv(sock, base64_encoded_key, 4096, 0);
+    int key_len = 0;
+    int iv_len = 0;
+    key_len = recv(sock, base64_encoded_key, 4096, 0);
 
     // sleep to get the iv
     sleep(1);
 
     // Receive the iv from the server
-    varread = recv(sock, base64_encoded_iv, 4096, 0);
+    iv_len = recv(sock, base64_encoded_iv, 4096, 0);
 
     // print key and iv in base64
     printf("Base64 Encoded Key: %s\n", base64_encoded_key);
     printf("Base64 Encoded IV: %s\n", base64_encoded_iv);
 
     // Base64 decode the key and iv
-    base64_decoded_key_len = base64_decode(base64_encoded_key, strlen(base64_encoded_key), AES_key);
-    base64_decoded_iv_len = base64_decode(base64_encoded_iv, strlen(base64_encoded_iv), AES_iv);
+    base64_decoded_key_len = base64_decode(base64_encoded_key, key_len, AES_key);
+    base64_decoded_iv_len = base64_decode(base64_encoded_iv, iv_len, AES_iv);
 
     // Print the key and iv
     printf("Key: ");
