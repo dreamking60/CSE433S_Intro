@@ -39,7 +39,20 @@ int base64_decode(const unsigned char *input, int length, unsigned char *output)
 
 // Base64 encode
 int base64_encode(const unsigned char *input, int length, unsigned char *output) {
-    return EVP_EncodeBlock(output, input, length);
+    int encoded_len = EVP_EncodeBlock(output, input, length);
+
+    // Calculate the number of padding characters needed
+    int padding = (3 - (length % 3)) % 3;
+
+    // Add padding characters if necessary
+    for (int i = 0; i < padding; i++) {
+        output[encoded_len + i] = '=';
+    }
+
+    // Null-terminate the encoded string
+    output[encoded_len + padding] = '\0';
+
+    return encoded_len + padding;
 }
 
 int block_decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *key, unsigned char *iv, unsigned char *plaintext)
