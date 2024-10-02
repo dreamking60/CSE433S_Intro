@@ -13,14 +13,11 @@
 #include <openssl/aes.h>
 #include <openssl/dh.h>
 #include <openssl/bio.h>
+#include <openssl/buffer.h>
 #include <openssl/engine.h>
 
 #define AES_KEY_LENGTH 32
 #define AES_BLOCK_SIZE 16
-
-#define RC4_KEY_LENGTH 16
-#define CHACHA_KEY_LENGTH 32
-#define CHACHA_IV_LENGTH 12
 
 // Handle errors
 void handleErrors(void)
@@ -31,15 +28,19 @@ void handleErrors(void)
 
 // Base64 decode
 int base64_decode(const unsigned char *input, int length, unsigned char *output) {
-    return EVP_DecodeBlock(output, input, length);
+    int len = EVP_DecodeBlock(output, input, length);
+    //remove '\0' from the output
+    while(output[len-1] == '\0') len--;
+    return len;
 }
+
 
 // Base64 encode
 int base64_encode(const unsigned char *input, int length, unsigned char *output) {
     return EVP_EncodeBlock(output, input, length);
 }
 
-int stream_decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *key, unsigned char *iv, unsigned char *plaintext)
+int block_decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *key, unsigned char *iv, unsigned char *plaintext)
 {
    /* Declare cipher context */
    EVP_CIPHER_CTX *ctx;
@@ -53,7 +54,7 @@ int stream_decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char 
     }
 
    /* Initialize the decryption operation. */
-   if(EVP_DecryptInit_ex(ctx, EVP_chacha20(), NULL, key, iv) != 1) {
+   if(EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv) != 1) {
         handleErrors();
    }
 
@@ -75,7 +76,7 @@ int stream_decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char 
    return plaintext_len;
 }
 
-int stream_encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *key, unsigned char *iv, unsigned char *ciphertext)
+int block_encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *key, unsigned char *iv, unsigned char *ciphertext)
 {
   /* Declare cipher context */
    EVP_CIPHER_CTX *ctx;
@@ -89,7 +90,7 @@ int stream_encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *k
     }
 
    /* Initialize the encryption operation. */ 
-   if(EVP_EncryptInit_ex(ctx, EVP_chacha20(), NULL, key, iv) != 1) {
+   if(EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv) != 1) {
         handleErrors();
      }
 
@@ -114,13 +115,11 @@ int stream_encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *k
 }
 
 
-// Define the decryption function
-
 int main() {
     // Declare variables
 	ssize_t varread;
     char server_message[1024];
-    char client_message[1024];
+    char client_message[4096];
 
     struct sockaddr_in server_addr;
     char server_ip[16]= "192.168.92.132";
@@ -128,6 +127,18 @@ int main() {
 
     struct sockaddr_in client_addr;
     socklen_t client_addr_len = sizeof(client_addr);
+
+    // AES key and IV
+    unsigned char key[AES_KEY_LENGTH];
+    unsigned char iv[AES_BLOCK_SIZE];
+
+    // Base64 decoded message
+    unsigned char decoded_message[4096];
+    int decoded_message_len;
+
+    // plain text
+    unsigned char plaintext[1024];
+    int plaintext_len;
 
     // Create socket
     int client_sock;
@@ -167,93 +178,54 @@ int main() {
     int client_port = ntohs(client_addr.sin_port);
     printf("Client connected at IP: %s and port: %i\n", client_ip, client_port);
 
-    // Declare key
-    //unsigned char key[RC4_KEY_LENGTH];
-
-    // Generate key
-    // if (!RAND_bytes(key, RC4_KEY_LENGTH)) {
-    //     handleErrors();
-    // }
-
-    // Send the key to the client
-    //send(client_sock, key, RC4_KEY_LENGTH, 0);
-
-    // Declare key and iv
-    unsigned char key[CHACHA_KEY_LENGTH];
-    unsigned char iv[CHACHA_IV_LENGTH];
-
     // Generate key and iv
-    if (!RAND_bytes(key, CHACHA_KEY_LENGTH)) {
+    if (!RAND_bytes(key, AES_KEY_LENGTH)) {
         handleErrors();
     }
-    if (!RAND_bytes(iv, CHACHA_IV_LENGTH)) {
+    if (!RAND_bytes(iv, AES_BLOCK_SIZE)) {
         handleErrors();
     }
 
     // print key and iv
     printf("Key: ");
-    for (int i = 0; i < CHACHA_KEY_LENGTH; i++) {
+    for (int i = 0; i < AES_KEY_LENGTH; i++) {
         printf("%02x", key[i]);
     }
     printf("\n");
 
     printf("IV: ");
-    for (int i = 0; i < CHACHA_IV_LENGTH; i++) {
+    for (int i = 0; i < AES_BLOCK_SIZE; i++) {
         printf("%02x", iv[i]);
     }
     printf("\n");
 
-    // correct the key
-    send(client_sock, key, CHACHA_KEY_LENGTH, 0);
+    // Send the key to the client
+    send(client_sock, key, AES_KEY_LENGTH, 0);
 
     // Send the iv to the client
-    send(client_sock, iv, CHACHA_IV_LENGTH, 0);
+    send(client_sock, iv, AES_BLOCK_SIZE, 0);
 
     // Receive client's message
-    varread = recv(client_sock, client_message, 1024, 0);
+    varread = recv(client_sock, client_message, 4096, 0);
 
     // Base64 decode
-    unsigned char decoded_message[1024];
-    int decoded_message_len = base64_decode(client_message, strlen(client_message), decoded_message);
+    decoded_message_len = base64_decode(client_message, varread, decoded_message);
 
-    printf("CHACHA20 Encrypt: %s\n", decoded_message);
-    printf("CHACHA20 Encrypt Length: %d\n", strlen(decoded_message));
-    // print cipher as byte
-    printf("CHACHA20 Encrypt Byte: ");
-    for (int i = 0; i < strlen(decoded_message); i++) {
-        printf("%02x",decoded_message[i]);
+    // Print the decoded message as hex
+    printf("Decoded Message: ");
+    for (int i = 0; i < decoded_message_len; i++) {
+        printf("%02x", decoded_message[i]);
     }
     printf("\n");
 
     // Decrypt the message
-    unsigned char decrypted_message[1024];
-    int decrypted_message_len = stream_decrypt(decoded_message, decoded_message_len, key, iv, decrypted_message);
+    plaintext_len = block_decrypt(decoded_message, decoded_message_len, key, iv, plaintext);
 
     // Print the decrypted message
-    printf("CHACHA20 Decrypted message: %s\n", decrypted_message);
-
-
-    // Receive OTP encrypted message
-    char otp_encrypted_message[1024];
-    char otp_key[varread];
-    varread = recv(client_sock, otp_encrypted_message, 1024, 0);
-    varread = recv(client_sock, otp_key, 1024, 0);
-    printf("OTP Encrypt: %x\n", otp_encrypted_message);
-    printf("OTP Key: %x\n", otp_key);
-
-    // Decrypt the OTP message
-    char otp_decrypted_message[varread];
-    for (int i = 0; i < varread; i++) {
-        otp_decrypted_message[i] = otp_encrypted_message[i] ^ otp_key[i];
-    }
-
-    // Print the OTP decrypted message
-    printf("OTP Decrypted message: %s\n", otp_decrypted_message);
+    printf("Decrypted Message: %s\n", plaintext);
 
     // Respond to client
-    strcpy(server_message, "Test Over!");
-
-    // Send the message to the client
+    strcpy(server_message, "#Server: I got your message!");
     send(client_sock, server_message, strlen(server_message), 0);
 
     // Close the socket

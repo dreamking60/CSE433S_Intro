@@ -10,24 +10,25 @@
 #include <openssl/err.h>
 #include <openssl/dh.h>
 #include <openssl/rand.h>
+#include <openssl/bio.h>
+#include <openssl/buffer.h>
 
 #define AES_KEY_LENGTH 32
 #define AES_BLOCK_SIZE 16
-#define RC4_KEY_LENGTH 16
 
-#define CHACHA_KEY_LENGTH 32
-#define CHACHA_IV_LENGTH 12
-
-
+// Handle errors
 void handleErrors(void)
 {
     ERR_print_errors_fp(stderr);
     abort();
 }
 
-// Base64 decode
+// Base64 decode 
 int base64_decode(const unsigned char *input, int length, unsigned char *output) {
-    return EVP_DecodeBlock(output, input, length);
+    int len = EVP_DecodeBlock(output, input, length);
+    //remove '\0' from the output
+    while(output[len-1] == '\0') len--;
+    return len;
 }
 
 // Base64 encode
@@ -35,7 +36,7 @@ int base64_encode(const unsigned char *input, int length, unsigned char *output)
     return EVP_EncodeBlock(output, input, length);
 }
 
-int stream_decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *key, unsigned char *iv, unsigned char *plaintext)
+int block_decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *key, unsigned char *iv, unsigned char *plaintext)
 {
    /* Declare cipher context */
    EVP_CIPHER_CTX *ctx;
@@ -49,7 +50,7 @@ int stream_decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char 
     }
 
    /* Initialize the decryption operation. */
-   if(EVP_DecryptInit_ex(ctx, EVP_chacha20(), NULL, key, iv) != 1) {
+   if(EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv) != 1) {
         handleErrors();
    }
 
@@ -65,14 +66,13 @@ int stream_decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char 
    }
     plaintext_len += len;
 
-
    /* Clean up */
    EVP_CIPHER_CTX_free(ctx);
 
    return plaintext_len;
 }
 
-int stream_encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *key, unsigned char *iv, unsigned char *ciphertext)
+int block_encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *key, unsigned char *iv, unsigned char *ciphertext)
 {
   /* Declare cipher context */
    EVP_CIPHER_CTX *ctx;
@@ -86,7 +86,7 @@ int stream_encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *k
     }
 
    /* Initialize the encryption operation. */ 
-   if(EVP_EncryptInit_ex(ctx, EVP_chacha20(), NULL, key, iv) != 1) {
+   if(EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv) != 1) {
         handleErrors();
      }
 
@@ -110,13 +110,6 @@ int stream_encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *k
    return ciphertext_len;
 }
 
-// One Time Pad encryption
-void otp_encrypt(char *plaintext, char *key, char *ciphertext) {
-    for (int i = 0; i < strlen(plaintext); i++) {
-        ciphertext[i] = plaintext[i] ^ key[i];
-    }
-}
-
 int main() {
     // Declare Variables
     struct sockaddr_in server_addr;
@@ -127,8 +120,18 @@ int main() {
     char client_message[1024];
 
     ssize_t varread;
-    unsigned char ciphertext[1024];
-    unsigned char rc4_key[RC4_KEY_LENGTH];
+
+    // Ciphertext
+    unsigned char ciphertext[4096];
+    int ciphertext_len;
+
+    // Base64 encode ciphertext
+    unsigned char base64_encoded_ciphertext[4096];
+    int base64_encoded_ciphertext_len;
+
+    // AES key and iv
+    unsigned char AES_key[AES_KEY_LENGTH];
+    unsigned char AES_iv[AES_BLOCK_SIZE];
 
     // Create socket:
     int sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -141,100 +144,55 @@ int main() {
     if(connect(sock, (struct sockaddr*) &server_addr, sizeof(server_addr)) < 0) {
         perror("Connection failed with error!");
         return 1;
-    }    
+    }
 
-    // Perform Diffie-Hellman key exchange and decrypt AES key and IV
+    // Receive the key from the server
+    varread = read(sock, AES_key, AES_KEY_LENGTH);
 
-    // Define the chacha20 key and iv
-    unsigned char chacha_key[CHACHA_KEY_LENGTH];
-    unsigned char chacha_iv[CHACHA_IV_LENGTH];
+    // sleep
+    sleep(1);
 
-    // recv key
-    //varread = recv(sock, rc4_key, RC4_KEY_LENGTH, 0);
-    // Receive key from server and send it back for confirmation
-    varread = recv(sock, chacha_key, CHACHA_KEY_LENGTH, 0);
-
-    // Receive IV from server and send it back for confirmation
-    varread = recv(sock, chacha_iv, CHACHA_IV_LENGTH, 0);
+    // Receive the iv from the server
+    varread = read(sock, AES_iv, AES_BLOCK_SIZE);
 
     // Print the key and iv
     printf("Key: ");
-    for (int i = 0; i < CHACHA_KEY_LENGTH; i++) {
-        printf("%02x", chacha_key[i]);
+    for (int i = 0; i < AES_KEY_LENGTH; i++) {
+        printf("%02x", AES_key[i]);
     }
     printf("\n");
 
     printf("IV: ");
-    for (int i = 0; i < CHACHA_IV_LENGTH; i++) {
-        printf("%02x", chacha_iv[i]);
+    for (int i = 0; i < AES_BLOCK_SIZE; i++) {
+        printf("%02x", AES_iv[i]);
     }
     printf("\n");
 
     // Get input from the user:
-    //printf("Enter message sent to the server: ");
-    //fgets(client_message, sizeof(client_message), stdin);
-    strcpy(client_message, "Hello, this is a test message!");
-
+    printf("Enter message sent to the server: ");
+    fgets(client_message, sizeof(client_message), stdin);
 
     // Encrypt the message
-    int ciphertext_len = stream_encrypt(client_message, strlen(client_message), chacha_key, chacha_iv, ciphertext);
+    ciphertext_len = block_encrypt(client_message, strlen(client_message), AES_key, AES_iv, ciphertext);
 
-    // print the encrypted message
-    printf("CHACHA20 Encrypt: %s\n",ciphertext);
-    printf("CHACHA20 Encrypt Length: %d\n", ciphertext_len);
+    // Base64 encode the ciphertext
+    base64_encoded_ciphertext_len = base64_encode(ciphertext, ciphertext_len, base64_encoded_ciphertext);
 
-    // print cipher as byte
-    printf("CHACHA20 Encrypt Byte: ");
+    // Send the message to server:
+    send(sock, base64_encoded_ciphertext, base64_encoded_ciphertext_len, 0);
+
+    // print the ciphertext as hex
+    printf("Ciphertext: ");
     for (int i = 0; i < ciphertext_len; i++) {
-        printf("%02x",ciphertext[i]);
+        printf("%02x", ciphertext[i]);
     }
     printf("\n");
 
-    // Decrypt the message
-    unsigned char decrypted_message[1024];
-    int decrypted_message_len = stream_decrypt(ciphertext, ciphertext_len, chacha_key, chacha_iv, decrypted_message);
-
-    // Print the decrypted message
-    printf("CHACHA20 Decrypt: %s\n", decrypted_message);
-
-    // Bse64 encode the message
-    unsigned char base64_encoded_message[1024];
-    int base64_encoded_message_len = base64_encode(ciphertext, ciphertext_len, base64_encoded_message);
-
-    // Send the message to server:
-    send(sock, base64_encoded_message, base64_encoded_message_len, 0);
-
-    // Init OTP as length of the client_message
-    char otp_key[strlen(client_message)];
-    for (int i = 0; i < strlen(client_message); i++) {
-        otp_key[i] = rand() % 256;
-    }
-
-    // print
-    printf("OTP Plain: %s\n", client_message);
-
-    // Encrypt the message with OTP
-    char otp_ciphertext[strlen(client_message)];
-    otp_encrypt(client_message, otp_key, otp_ciphertext);
-    
-    // print the OTP encrypted message
-    printf("OTP Encrypt: %x\n",otp_ciphertext);
-    printf("OTP Key: %x\n",otp_key);
-
-    // send the OTP ciphertext to server
-    send(sock, otp_ciphertext, strlen(otp_ciphertext), 0);
-
-    // wait
-    sleep(1);
-
-    // send the OTP key to server
-    send(sock, otp_key, strlen(otp_key), 0);
-    
-
 
     // Receive the server's response:
-    varread = read(sock, server_message, 1024);    
-    printf("End: %s\n", server_message);
+    varread = read(sock, server_message, 1024);
+
+    printf("Server's response: %s\n",server_message);
 
     // Close the socket:
     close(sock);

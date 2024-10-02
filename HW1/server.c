@@ -2,75 +2,100 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#include <errno.h>
-#include <netinet/in.h>
 #include <unistd.h>
+#include <openssl/evp.h>
+#include <openssl/rand.h>
+#include <openssl/err.h>
+
+#define PORT 10888
+#define KEY_LENGTH 32
+#define NONCE_LENGTH 12
+
+void handleErrors() {
+    ERR_print_errors_fp(stderr);
+    abort();
+}
+
+void chacha20_encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *key, unsigned char *nonce, unsigned char *ciphertext) {
+    EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
+    if (!ctx) handleErrors();
+
+    // Initialize encryption
+    if (EVP_EncryptInit_ex(ctx, EVP_chacha20(), NULL, key, nonce) != 1) {
+        handleErrors();
+    }
+
+    int len;
+    // Encrypt the plaintext
+    if (EVP_EncryptUpdate(ctx, ciphertext, &len, plaintext, plaintext_len) != 1) {
+        handleErrors();
+    }
+
+    EVP_CIPHER_CTX_free(ctx);
+}
 
 int main() {
-    // Declare variables
-	ssize_t varread;
-    char server_message[1024];
-    char client_message[1024];
-
-    struct sockaddr_in server_addr;
-    char server_ip[16]= "192.168.92.132";
-    int server_port = 10888;
-
-    struct sockaddr_in client_addr;
+    struct sockaddr_in server_addr, client_addr;
     socklen_t client_addr_len = sizeof(client_addr);
-
+    unsigned char key[KEY_LENGTH];
+    unsigned char nonce[NONCE_LENGTH];
+    unsigned char buffer[1024];
+    unsigned char ciphertext[1024];
 
     // Create socket
-    int client_sock;
-  	int sever_sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sever_sock < 0) {
-        perror("Socket creation failed with error!");
+    int server_sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (server_sock < 0) {
+        perror("Socket creation failed!");
         return 1;
     }
-    if(setsockopt(sever_sock, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)) < 0) {
-        perror("Socket option failed with error!");
-        return 1;
-    }
+
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(server_port);
-    server_addr.sin_addr.s_addr = inet_addr(server_ip);
-    
+    server_addr.sin_port = htons(PORT);
+    server_addr.sin_addr.s_addr = INADDR_ANY;
 
-    // Bind to the set port and IP
-    if(bind(sever_sock, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
-        perror("Binding failed with error!");
-        return 1;
-    }
-    printf("Done with binding with IP: %s, Port: %d\n", server_ip, server_port);
-
-    // Listen for clients:
-    if(listen(sever_sock, 3) < 0) {
-        perror("Listening failed with error!");
+    // Bind
+    if (bind(server_sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
+        perror("Binding failed!");
         return 1;
     }
 
-    // Accept an incoming connection
-    if((client_sock = accept(sever_sock, (struct sockaddr*)&client_addr, &client_addr_len)) < 0) {
-        perror("Accepting failed with error!");
+    // Listen
+    if (listen(server_sock, 1) < 0) {
+        perror("Listening failed!");
         return 1;
     }
-    char * client_ip = inet_ntoa(client_addr.sin_addr);
-    int client_port = ntohs(client_addr.sin_port);
-    printf("Client connected at IP: %s and port: %i\n", client_ip, client_port);
 
-    // Receive client's message
-    varread = recv(client_sock, client_message, 1024, 0);
-    printf("Msg from client: %s\n", client_message);
+    // Accept client connection
+    int client_sock = accept(server_sock, (struct sockaddr *)&client_addr, &client_addr_len);
+    if (client_sock < 0) {
+        perror("Accepting failed!");
+        return 1;
+    }
 
+    // Generate random key and nonce
+    if (RAND_bytes(key, sizeof(key)) != 1) handleErrors();
+    if (RAND_bytes(nonce, sizeof(nonce)) != 1) handleErrors();
 
-    // Respond to client
-    strcpy(server_message, "##Hello, Bob! This is Alice.##");
-    send(client_sock, server_message, strlen(server_message), 0);
+    // Send key and nonce to client
+    send(client_sock, key, KEY_LENGTH, 0);
+    send(client_sock, nonce, NONCE_LENGTH, 0);
 
-    // Close the socket
+    // Receive message from client
+    int len = recv(client_sock, buffer, sizeof(buffer), 0);
+    if (len < 0) {
+        perror("Receiving message failed!");
+        return 1;
+    }
+
+    // Encrypt message
+    chacha20_encrypt(buffer, len, key, nonce, ciphertext);
+
+    // Send ciphertext back to client
+    send(client_sock, ciphertext, len, 0);
+
+    // Close sockets
     close(client_sock);
-    close(sever_sock);
-    
+    close(server_sock);
 
     return 0;
 }
