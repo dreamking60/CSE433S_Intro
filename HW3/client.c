@@ -27,24 +27,31 @@ void cal_hmac(unsigned char *mac, char *message) {
    /* Create and initialize the context */
    HMAC_CTX *ctx;
    ctx = HMAC_CTX_new();
+   if(ctx == NULL) {
+       handleErrors();
+   }
 
 
    /* Initialize the HMAC operation. */
-   HMAC_Init_ex(ctx, key, strlen(key), EVP_sha256(), NULL);
+   if(HMAC_Init_ex(ctx, key, strlen(key), EVP_sha256(), NULL) != 1) {
+       handleErrors();
+   }
 
 
    /* Provide the message to HMAC, and start HMAC authentication. */
-   HMAC_Update(ctx, (unsigned char*)message, strlen(message));
+   if(HMAC_Update(ctx, (unsigned char*)message, strlen(message)) != 1) {
+       handleErrors();
+   }
   
    /* HMAC_Final() writes the hashed values to md, which must have enough space for the hash function output. */
-   HMAC_Final(ctx, mac, &len);
-
+   if(HMAC_Final(ctx, mac, &len) != 1) {
+       handleErrors();
+   }
 
    /* Releases any associated resources and finally frees context variable */
    HMAC_CTX_free(ctx);
   
    return;
-   
 }
 
 int main() {
