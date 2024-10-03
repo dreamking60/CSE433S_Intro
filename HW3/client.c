@@ -13,7 +13,7 @@ void handleErrors(void) {
 }
 
 
-void cal_hmac(unsigned char *mac, char *message) {
+void cal_hmac(unsigned char *mac, char *message, size_t msg_len) {
 /* The secret key for hashing */
    const char key[] = "SECRET_KEY";
 
@@ -39,7 +39,7 @@ void cal_hmac(unsigned char *mac, char *message) {
 
 
    /* Provide the message to HMAC, and start HMAC authentication. */
-   if(HMAC_Update(ctx, (unsigned char*)message, strlen(message)) != 1) {
+   if(HMAC_Update(ctx, (unsigned char*)message, msg_len) != 1) {
        handleErrors();
    }
   
@@ -91,7 +91,7 @@ int main() {
     send(sock, client_message, strlen(client_message), 0);
 
     // Send the HMAC to the server:
-    cal_hmac(mac, client_message);
+    cal_hmac(mac, client_message, strlen(client_message));
 
     // print the HMAC
     printf("HMAC: ");

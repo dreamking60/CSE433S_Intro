@@ -13,7 +13,7 @@ void handleErrors(void) {
     abort();
 }
 
-void cal_hmac(unsigned char *mac, char *message) {
+void cal_hmac(unsigned char *mac, char *message, size_t msg_len) {
 /* The secret key for hashing */
    const char key[] = "SECRET_KEY";
 
@@ -39,7 +39,7 @@ void cal_hmac(unsigned char *mac, char *message) {
 
 
    /* Provide the message to HMAC, and start HMAC authentication. */
-   if(HMAC_Update(ctx, (unsigned char*)message, strlen(message)) != 1) {
+   if(HMAC_Update(ctx, (unsigned char*)message, msg_len) != 1) {
        handleErrors();
    }
   
@@ -62,6 +62,7 @@ int main() {
 
     unsigned char mac[32];
     unsigned char server_mac[32];
+    int msg_len;
 
     struct sockaddr_in server_addr;
     char server_ip[16]= "192.168.92.132";
@@ -110,7 +111,7 @@ int main() {
     printf("Client connected at IP: %s and port: %i\n", client_ip, client_port);
 
     // Receive client's message
-    varread = recv(client_sock, client_message, 1024, 0);
+    msg_len = recv(client_sock, client_message, 1024, 0);
     printf("MSG: %s\n", client_message);
 
     // Receive client's HMAC
@@ -122,7 +123,7 @@ int main() {
     printf("\n");
 
     // Calculate HMAC
-    cal_hmac(server_mac, client_message);
+    cal_hmac(server_mac, client_message, (size_t)msg_len);
     printf("HMAC: ");
     for(int i = 0; i < 32; i++) {
         printf("%02x", server_mac[i]);
