@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <errno.h>
@@ -52,6 +53,15 @@ void cal_hmac(unsigned char *mac, char *message, size_t msg_len) {
    HMAC_CTX_free(ctx);
   
    return;
+}
+
+bool hmac_cmp(unsigned char *mac1, unsigned char *mac2) {
+    for(int i = 0; i < 32; i++) {
+        if(mac1[i] != mac2[i]) {
+            return false;
+        }
+    }
+    return true;
 }
 
 int main() {
@@ -131,7 +141,7 @@ int main() {
     printf("\n");
 
 
-    if(strcmp(mac, server_mac) == 0) {
+    if(hmac_cmp(mac, server_mac)) {
         printf("Authentication successful!\n");
         // Respond to client
         strcpy(server_message, "Correct!");
