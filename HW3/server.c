@@ -144,7 +144,7 @@ int main() {
     if(hmac_cmp(mac, server_mac)) {
         printf("Authentication successful!\n");
         // Respond to client
-        strcpy(server_message, "Correct!");
+        strcpy(server_message, "Correct!\n");
         send(client_sock, server_message, strlen(server_message), 0);
     } else {
         printf("Authentication failed!\n");
