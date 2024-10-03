@@ -87,7 +87,11 @@ int main() {
     cal_hmac(mac, client_message);
 
     // print the HMAC
-    printf("HMAC: %s\n", mac);
+    printf("HMAC: ");
+    for(int i = 0; i < 32; i++) {
+        printf("%02x", mac[i]);
+    }
+    printf("\n");
 
     // Send the HMAC to the server:
     send(sock, mac, sizeof(mac), 0);

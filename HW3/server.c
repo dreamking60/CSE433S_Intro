@@ -104,15 +104,24 @@ int main() {
 
     // Receive client's message
     varread = recv(client_sock, client_message, 1024, 0);
-    printf("Msg: %s\n", client_message);
+    printf("MSG: %s\n", client_message);
 
     // Receive client's HMAC
     varread = recv(client_sock, mac, 32, 0);
-    printf("HMAC from client: %s\n", mac);
+    printf("HMAC: ");
+    for(int i = 0; i < 32; i++) {
+        printf("%02x", mac[i]);
+    }
+    printf("\n");
 
     // Calculate HMAC
     cal_hmac(server_mac, client_message);
-    printf("HMAC from server: %s\n", server_mac);
+    printf("HMAC: ");
+    for(int i = 0; i < 32; i++) {
+        printf("%02x", server_mac[i]);
+    }
+    printf("\n");
+
 
     if(strcmp(mac, server_mac) == 0) {
         printf("Authentication successful!\n");
