@@ -10,7 +10,7 @@ void main()
         srand(i);
         for (int j = 0; j< KEYSIZE; j++){
             key[j] = rand()%256;
-            printf("%.2x", (unsigned char)key[i]);
+            printf("%.2x", (unsigned char)key[j]);
         }
         printf("\n");
     }

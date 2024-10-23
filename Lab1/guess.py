@@ -31,9 +31,7 @@ with open("key.txt", "r") as f:
     keys = [bytes.fromhex(line.strip()) for line in f]
 
 for key in keys:
-    print(key)
     plaintext = decrypt(C, key, IV)
     if plaintext.startswith(b"%PDF"):
-        print(plaintext)
         print(key)
         break
