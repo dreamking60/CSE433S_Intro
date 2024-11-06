@@ -10,6 +10,7 @@
 #define PORT 10888
 #define KEY_LENGTH 32
 #define NONCE_LENGTH 12
+#define AAD_LENGTH 16
 
 void handleErrors() {
     ERR_print_errors_fp(stderr);
@@ -174,7 +175,7 @@ int main() {
     printf("\n");
 
     // Decrypt the ciphertext
-    plaintext_len = gcm_decrypt(ciphertext, ciphertext_len, NULL, 0, tag, key, nonce, NONCE_LENGTH, plaintext);
+    plaintext_len = gcm_decrypt(ciphertext, ciphertext_len, aad, AAD_LENGTH, tag, key, nonce, NONCE_LENGTH, plaintext);
     if (plaintext_len < 0) {
         fprintf(stderr, "Decryption failed!\n");
         close(client_sock);
