@@ -85,6 +85,19 @@ int main() {
     // Encrypt the plaintext
     ciphertext_len = gcm_encrypt(plaintext, strlen((char *)plaintext), aad, AAD_LENGTH, key, nonce, NONCE_LENGTH, ciphertext, tag);
 
+    // Print key and nonce
+    printf("Key: ");
+    for (int i = 0; i < KEY_LENGTH; i++) {
+        printf("%02x", key[i]);
+    }
+    printf("\n");
+
+    printf("Nonce: ");
+    for (int i = 0; i < NONCE_LENGTH; i++) {
+        printf("%02x", nonce[i]);
+    }
+    printf("\n");
+
     // Print ciphertext and tag
     printf("Ciphertext: ");
     for (int i = 0; i < ciphertext_len; i++) {

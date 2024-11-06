@@ -148,6 +148,31 @@ int main() {
     int ciphertext_len = recv(client_sock, ciphertext, sizeof(ciphertext), 0);
     recv(client_sock, tag, sizeof(tag), 0);
 
+    // Print key, nonce, ciphertext, and tag
+    printf("Key: ");
+    for (int i = 0; i < KEY_LENGTH; i++) {
+        printf("%02x", key[i]);
+    }
+    printf("\n");
+
+    printf("Nonce: ");
+    for (int i = 0; i < NONCE_LENGTH; i++) {
+        printf("%02x", nonce[i]);
+    }
+    printf("\n");
+
+    printf("Ciphertext: ");
+    for (int i = 0; i < ciphertext_len; i++) {
+        printf("%02x", ciphertext[i]);
+    }
+    printf("\n");
+
+    printf("Tag: ");
+    for (int i = 0; i < 16; i++) {
+        printf("%02x", tag[i]);
+    }
+    printf("\n");
+
     // Decrypt the ciphertext
     plaintext_len = gcm_decrypt(ciphertext, ciphertext_len, NULL, 0, tag, key, nonce, NONCE_LENGTH, plaintext);
     if (plaintext_len < 0) {
