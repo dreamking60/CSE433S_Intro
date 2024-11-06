@@ -105,7 +105,7 @@ int main() {
     socklen_t client_addr_len = sizeof(client_addr);
     unsigned char key[KEY_LENGTH];
     unsigned char nonce[NONCE_LENGTH];
-    unsigned char aad[AAD_LENGTH]
+    unsigned char aad[16] = "0123456789abcdef"; // Hardcoded AAD
     unsigned char buffer[1024];
     unsigned char ciphertext[1024];
     unsigned char tag[16];

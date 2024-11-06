@@ -71,7 +71,7 @@ int main() {
     struct sockaddr_in server_addr;
     unsigned char key[KEY_LENGTH];
     unsigned char nonce[NONCE_LENGTH];
-    unsigned char aad[AAD_LENGTH] = "0123456789abcdef"; // Hardcoded AAD
+    unsigned char aad[16] = "0123456789abcdef"; // Hardcoded AAD
     unsigned char plaintext[1024] = "Test Message.";
     unsigned char ciphertext[1024];
     unsigned char tag[16];
