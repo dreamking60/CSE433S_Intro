@@ -67,7 +67,7 @@ int gcm_decrypt(unsigned char *ciphertext, int ciphertext_len,
     * EVP_DecryptUpdate can be called multiple times if necessary
     */
    if(aad && aad_len > 0){
-        if(!EVP_DecryptUpdate(ctx, NULL, &len, ciphertext, ciphertext_len)){
+        if(!EVP_DecryptUpdate(ctx, plaintext, &len, ciphertext, ciphertext_len)){
             handleErrors();
         }
    }
@@ -85,9 +85,6 @@ int gcm_decrypt(unsigned char *ciphertext, int ciphertext_len,
     * and anything else is a failure - the plaintext is not trustworthy.
     */
    ret = EVP_DecryptFinal_ex(ctx, plaintext + len, &len);
-
-    //print the plaintext
-    printf("Plaintext: %s\n", plaintext);
 
    /* Clean up */
    EVP_CIPHER_CTX_free(ctx);
