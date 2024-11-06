@@ -134,7 +134,9 @@ int main() {
     send(sock, nonce, NONCE_LENGTH, 0);
     send(sock, ciphertext, ciphertext_len, 0);
 
-    time.sleep(1);
+    // Sleep
+    sleep(1);
+    
     send(sock, tag, sizeof(tag), 0);
 
     close(sock);
