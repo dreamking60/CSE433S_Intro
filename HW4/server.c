@@ -65,7 +65,7 @@ int gcm_decrypt(unsigned char *ciphertext, int ciphertext_len,
     * Provide the message to be decrypted, and obtain the plaintext output.
     * EVP_DecryptUpdate can be called multiple times if necessary
     */
-   if(add && add_len > 0){
+   if(aad && aad_len > 0){
         if(!EVP_DecryptUpdate(ctx, NULL, &len, ciphertext, ciphertext_len)){
             handleErrors();
         }
@@ -105,7 +105,7 @@ int main() {
     socklen_t client_addr_len = sizeof(client_addr);
     unsigned char key[KEY_LENGTH];
     unsigned char nonce[NONCE_LENGTH];
-    unsigned char aad[AAD_LENGTH] = "0123456789abcdef"
+    unsigned char aad[AAD_LENGTH]
     unsigned char buffer[1024];
     unsigned char ciphertext[1024];
     unsigned char tag[16];
